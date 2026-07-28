@@ -3,8 +3,11 @@
 
 import argparse
 import json
+import logging
 import os
 import sys
+
+logger = logging.getLogger()
 
 
 def fill_external_logging_settings(file_path):
@@ -12,8 +15,10 @@ def fill_external_logging_settings(file_path):
     Заполняет секции ExternalLoggers и ExternalLoggingMessages в JSON-файле настроек.
     """
     # Чтение текущего содержимого
-    with open(file_path, 'r', encoding='utf-8') as f:
-        config = json.load(f)
+
+    with open(file_path, 'r', encoding='utf-8') as opened_file:
+        config = json.load(opened_file)
+    logging.info("File is opened")
 
     # Заполнение ExternalLoggers
     config['ExternalLoggers'] = [
@@ -45,13 +50,16 @@ def fill_external_logging_settings(file_path):
     ]
 
     # Запись обновлённого файла (с сохранением форматирования)
-    with open(file_path, 'w', encoding='utf-8') as f:
-        json.dump(config, f, ensure_ascii=False, indent=2)
+    new_filename = "edit_" + file_path
+    with open(file_path, 'w', encoding='utf-8') as opened_file:
+        json.dump(config, opened_file, ensure_ascii=False, indent=2)
 
 
 def main():
-    parser = argparse.ArgumentParser()
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
+    logger.info("main is starting")
+    parser = argparse.ArgumentParser()
     parser.add_argument('input_file')
 
     # parser.add_argument('-s', '--start',
@@ -64,6 +72,7 @@ def main():
     #     action='store_true'
     # )
 
+    logger.info("args parsed")
     args = parser.parse_args()
 
     # Validate input file
@@ -75,6 +84,7 @@ def main():
         print(f"Error: '{args.input_file}' is not a file.")
         sys.exit(1)
 
+    logger.info(f"Input file: {args.input_file}")
     fill_external_logging_settings(args.input_file)
 
     # success, message, count = process_register_comments(args.input_file, args.start)
