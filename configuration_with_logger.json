@@ -1,0 +1,331 @@
+﻿{
+  "Cameras": [
+    {
+      "Type": "TrekMark.Drivers.Scanners.DriverUniversalSmartCameraMultipleCodes.SmartCameraMultipleCodes",
+      "IsInitialized": true,
+      "Name": "Camera1",
+      "Parameters": [
+        {
+          "Name": "IP-адрес",
+          "Value": "127.0.0.1"
+        },
+        {
+          "Name": "Сетевой порт",
+          "Value": 1
+        },
+        {
+          "Name": "Время ожидания сообщений",
+          "Value": 0
+        },
+        {
+          "Name": "Автоотправка NULL-пакета в камеру",
+          "Value": false
+        },
+        {
+          "Name": "Использование TCP Keepalive",
+          "Value": false
+        },
+        {
+          "Name": "Формат разделителя строки",
+          "Value": 0
+        }
+      ],
+      "LastUploadedConfig": null,
+      "IsUsing": true
+    }
+  ],
+  "HandScanners": [],
+  "ModulesReports": [],
+  "InputTasks": {
+    "Type": "TrekMark.Drivers.InputTasks.ProtocolLineM.ProtocolLineM",
+    "TimeoutCheckRemoteTasks": 5000,
+    "Parameters": [
+      {
+        "Name": "IP-адрес",
+        "Value": "127.0.0.1"
+      },
+      {
+        "Name": "Сетевой порт",
+        "Value": 8080
+      },
+      {
+        "Name": "Использование всех доступных адресов",
+        "Value": false
+      },
+      {
+        "Name": "Тип задания",
+        "Value": 0
+      },
+      {
+        "Name": "Видоизменение входящих кодов",
+        "Value": ""
+      },
+      {
+        "Name": "Отображение даты производства",
+        "Value": false
+      },
+      {
+        "Name": "Отображение даты истечения срока годности",
+        "Value": false
+      }
+    ]
+  },
+  "ModuleAuthorization": {
+    "Type": "",
+    "IsInitialized": false,
+    "Parameters": []
+  },
+  "ModulesIO": [
+    {
+      "Type": "TrekMark.Drivers.Boards.ModbusMaster.ModbusMaster",
+      "IsInitialized": true,
+      "Name": "PlcEmul",
+      "SignalActivationDelay": 0,
+      "SignalDeactivationDelay": 0,
+      "Parameters": [
+        {
+          "Name": "Адрес Modbus Client",
+          "Value": "192.168.13.200"
+        },
+        {
+          "Name": "Сетевой порт Modbus Client",
+          "Value": 502
+        },
+        {
+          "Name": "Время ожидания сообщений",
+          "Value": 0
+        },
+        {
+          "Name": "Использование TCP Keepalive",
+          "Value": false
+        },
+        {
+          "Name": "Период опроса регистров",
+          "Value": 100
+        }
+      ],
+      "AddressesToRead": [],
+      "AddressesToWrite": [],
+      "IsUsing": true
+    }
+  ],
+  "Printers": [],
+  "SystemEvents": [],
+  "TrafficLights": [],
+  "DefectRejectionDevices": [],
+  "SimpleSignals": [],
+  "ExternalMessages": [],
+  "ExternalAlarms": [],
+  "ExternalButtons": [],
+  "ExternalCounters": [],
+  "ExternalLiveSignals": [
+    {
+      "Name": "mWatchdog",
+      "IsInitialized": true,
+      "ModuleIOName": "PlcEmul",
+      "IsUsing": true,
+      "RelayNumber": 10005,
+      "Period": 1000,
+      "RelayValue1": 1,
+      "RelayValue2": 0
+    }
+  ],
+  "ExternalWorkSignals": [],
+  "ExternalReadySignals": [
+    {
+      "Name": "mReady",
+      "IsInitialized": true,
+      "ModuleIOName": "PlcEmul",
+      "IsUsing": true,
+      "RelayNumber": 10003,
+      "ConsiderTechnology": true,
+      "ConsiderActiveAlarms": false,
+      "ConsiderJob": true,
+      "RelayActiveValue": 1,
+      "RelayInactiveValue": 0
+    }
+  ],
+  "ExternalAlarmSignals": [
+    {
+      "Name": "sert",
+      "IsInitialized": true,
+      "SourceType": 0,
+      "SourceName": "",
+      "UseAllSourceAlarms": true,
+      "SelectedAlarmIndex": 2,
+      "ModuleIOName": "PlcEmul",
+      "IsUsing": true,
+      "RelayNumber": 10004,
+      "RelayActiveValue": 1,
+      "RelayInactiveValue": 0
+    }
+  ],
+  "ExternalClearAlarmsSignals": [],
+  "ExternalLoggers": [
+    {
+      "Name": "test_logger",
+      "IsInitialized": true,
+      "IsUsing": true,
+      "ModuleIOName": "PlcEmul",
+      "FutureEntryRelayNumber": 10053,
+      "ExternalLoggerLines": [
+        {
+          "TimeRelayNumber": 10054,
+          "EventRelayNumber": 10055,
+          "ArgRelayNuber": 10056
+        }
+      ]
+    }
+  ],
+  "ExternalLoggingMessages": [
+    {
+      "Name": "message1",
+      "IsEnabled": true,
+      "EventIndex": 1,
+      "LoggerName": "test_logger",
+      "MessageFormat": "test for message1 with argument = {0}"
+    }
+  ],
+  "WorkModes": {
+    "SelectedType": "TrekMark.Technology.Standard.SerializationOnUnwinding.Main",
+    "WorkModeParameters": [
+      {
+        "Type": "TrekMark.Technology.Standard.SerializationOnUnwinding.Main",
+        "Parameters": [
+          {
+            "Name": "Пульт",
+            "Value": "Основной"
+          },
+          {
+            "Name": "Товарная группа кодов маркировки продукта",
+            "Value": 0
+          },
+          {
+            "Name": "Камера валидации",
+            "Value": ""
+          },
+          {
+            "Name": "Камера активации",
+            "Value": "Camera1"
+          },
+          {
+            "Name": "Принтер сериализации",
+            "Value": ""
+          },
+          {
+            "Name": "Ручной сканер",
+            "Value": ""
+          },
+          {
+            "Name": "Реакция на считывание кода на валидации",
+            "Value": ""
+          },
+          {
+            "Name": "Реакция на считывание кода на активации",
+            "Value": ""
+          },
+          {
+            "Name": "Количество брака подряд на валидации",
+            "Value": 1
+          },
+          {
+            "Name": "Количество брака среди последних кодов на валидации",
+            "Value": 1
+          },
+          {
+            "Name": "Количество последних учитываемых снимков для брака на валидации",
+            "Value": 1
+          },
+          {
+            "Name": "Количество брака подряд на активации",
+            "Value": 1
+          },
+          {
+            "Name": "Количество брака среди последних кодов на активации",
+            "Value": 1
+          },
+          {
+            "Name": "Количество последних учитываемых снимков для брака на активации",
+            "Value": 1
+          },
+          {
+            "Name": "Включить подтверждение ручного ввода",
+            "Value": false
+          },
+          {
+            "Name": "Включить автоматический запуск печати при старте задания",
+            "Value": false
+          },
+          {
+            "Name": "Количество оставшихся кодов маркировки для предупреждения",
+            "Value": 0
+          },
+          {
+            "Name": "Разрешить ручную операцию приладки камер",
+            "Value": true
+          },
+          {
+            "Name": "Обработка ограничения на количество активируемых кодов",
+            "Value": 0
+          }
+        ]
+      }
+    ]
+  },
+  "Other": {
+    "DelayBeforeInit": 0,
+    "NumberOfDaysOfKeepingLogs": 90,
+    "ActivateDoubleClickedSelectTask": false,
+    "ConfirmationOfTaskSelection": false,
+    "NotAllowPause": false,
+    "SelectWithoutRecipeType": 0
+  },
+  "TestingMode": {
+    "HardwareLogTrace": true,
+    "HardwareLogDebug": true,
+    "HardwareLogError": true,
+    "HardwareLogWarning": true,
+    "HardwareLogInfo": true,
+    "ShowConsole": false
+  },
+  "ShutdownSettings": {
+    "ShutdownAllowShutdownOS": false,
+    "ShutdownAddButtonShutdownOSToInterface": false
+  },
+  "ShutdownExternalSignals": [],
+  "ShutdownHandlers": [],
+  "Panels": [
+    {
+      "Name": "Основной",
+      "IsEnabled": true,
+      "ListModuleIOName": [],
+      "ListHandScannersName": [],
+      "ListPrinterName": [],
+      "ListSystemEventsName": [],
+      "ListCameraName": [],
+      "ListModuleReportsName": [],
+      "ListExternalMessagesName": [],
+      "ListExternalAlarmsName": [],
+      "ListExternalButtonsName": [],
+      "ListExternalCountersName": [],
+      "ListClearAlarmsSignalsName": [],
+      "EnableInputTasks": false,
+      "EnabledJob": true,
+      "DisplayName": "",
+      "DecorateWindow": false,
+      "MaximizeWindow": false,
+      "DisableFullscreen": false,
+      "WindowWidth": -1,
+      "WindowHeight": -1,
+      "ActivateCursor": true,
+      "WindowSubtitle": "",
+      "TechnologyButtonsTopMargin": 0,
+      "ShowJournalDefault": true,
+      "ShowTasksList": false,
+      "ShowLineIndex": true,
+      "ShowMessageClearAlarms": false,
+      "HideScrollMessagesAndAlarms": true
+    }
+  ],
+  "LastSelectedRecipe": null
+}
