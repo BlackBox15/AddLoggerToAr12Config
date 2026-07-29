@@ -33,7 +33,7 @@ def fill_external_logging_settings(file_path):
                     "Name": "test_logger",
                     "IsInitialized": True,
                     "IsUsing": True,
-                    "ModuleIOName": "PlcEmul",
+                    "ModuleIOName": plc_name_from_config,
                     "FutureEntryRelayNumber": 40050,
                     # адрес регистра LogIndex, его формат dword, поэтому адресация вида 40ххх
                     "ExternalLoggerLines": [
@@ -41,6 +41,11 @@ def fill_external_logging_settings(file_path):
                             "TimeRelayNumber": 40052,  # адрес регистра времени 1-го события, формат dword
                             "EventRelayNumber": 10054,  # адрес регистра порядкового номера события (id), формат word
                             "ArgRelayNuber": 10055  # адрес регистра аргумента, формат величины - word, не используется
+                        },
+                        {  # структура данных 1-го события
+                            "TimeRelayNumber": 40056,  # адрес регистра времени 1-го события, формат dword
+                            "EventRelayNumber": 10058,  # адрес регистра порядкового номера события (id), формат word
+                            "ArgRelayNuber": 10059  # адрес регистра аргумента, формат величины - word, не используется
                         }
                     ]
                 }
