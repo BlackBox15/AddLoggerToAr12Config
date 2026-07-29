@@ -10,7 +10,7 @@ import sys
 logger = logging.getLogger()
 
 
-def fill_external_logging_settings(file_path):
+def fill_new_config(file_path):
     """
     Заполняет секции ExternalLoggers и ExternalLoggingMessages в JSON-файле настроек.
     """
@@ -86,6 +86,7 @@ def fill_external_logging_settings(file_path):
 
 
 def main():
+    # Конфигурирование логгера
     logging.basicConfig(filename="general.log", level=logging.INFO,
                         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -94,7 +95,7 @@ def main():
 
     args = parser.parse_args()
 
-    # Validate input file
+    # Проверка открываемого файла
     if str(args.input_file) == 'None':
         print("Input file is empty!")
         logger.info("Input file is empty!")
@@ -109,9 +110,8 @@ def main():
         sys.exit(1)
 
     logger.info(f"Input file: {args.input_file}")
-    fill_external_logging_settings(args.input_file)
+    fill_new_config(args.input_file)
 
 
-# Пример использования
 if __name__ == "__main__":
     main()
