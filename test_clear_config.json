@@ -1,4 +1,4 @@
-{
+﻿{
   "Cameras": [
     {
       "Type": "TrekMark.Drivers.Scanners.DriverUniversalSmartCameraMultipleCodes.SmartCameraMultipleCodes",
@@ -161,31 +161,8 @@
     }
   ],
   "ExternalClearAlarmsSignals": [],
-  "ExternalLoggers": [
-    {
-      "Name": "test_logger",
-      "IsInitialized": true,
-      "IsUsing": true,
-      "ModuleIOName": "PlcEmul",
-      "FutureEntryRelayNumber": 40050,
-      "ExternalLoggerLines": [
-        {
-          "TimeRelayNumber": 40052,
-          "EventRelayNumber": 10054,
-          "ArgRelayNuber": 10055
-        }
-      ]
-    }
-  ],
-  "ExternalLoggingMessages": [
-    {
-      "Name": "message1",
-      "IsEnabled": true,
-      "EventIndex": 1,
-      "LoggerName": "test_logger",
-      "MessageFormat": "test for message1 with argument = {0}"
-    }
-  ],
+  "ExternalLoggers": [],
+  "ExternalLoggingMessages": [],
   "WorkModes": {
     "SelectedType": "TrekMark.Technology.Standard.SerializationOnUnwinding.Main",
     "WorkModeParameters": [
