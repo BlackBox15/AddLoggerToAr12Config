@@ -111,8 +111,6 @@ def main():
     logger.info(f"Input file: {args.input_file}")
     fill_external_logging_settings(args.input_file)
 
-    # success, message, count = process_register_comments(args.input_file, args.start)
-
 
 # Пример использования
 if __name__ == "__main__":
