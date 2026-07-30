@@ -7,7 +7,7 @@ import logging
 import os
 import sys
 from tkinter import Tk
-from tkinter.messagebox import showinfo, showerror, showwarning
+from tkinter.messagebox import showinfo, showerror
 
 logger = logging.getLogger()
 
@@ -16,7 +16,6 @@ def fill_new_config(file_path):
     """
     Заполняет секции ExternalLoggers и ExternalLoggingMessages в JSON-файле настроек.
     """
-
 
     root = Tk()
     root.withdraw()
@@ -101,9 +100,6 @@ def main():
     # Конфигурирование логгера
     logging.basicConfig(filename="general.log", level=logging.INFO,
                         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-
-
 
     parser = argparse.ArgumentParser()
     parser.add_argument('input_file')
