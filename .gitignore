@@ -1,2 +1,8 @@
 # json files
 *.json
+
+# log files
+*.log
+
+# another non-necessary files
+*_edit
