@@ -6,6 +6,8 @@ import json
 import logging
 import os
 import sys
+from tkinter import Tk
+from tkinter.messagebox import showinfo, showerror, showwarning
 
 logger = logging.getLogger()
 
@@ -14,20 +16,28 @@ def fill_new_config(file_path):
     """
     Заполняет секции ExternalLoggers и ExternalLoggingMessages в JSON-файле настроек.
     """
+
+
+    root = Tk()
+    root.withdraw()
+
     # Чтение текущего содержимого
     with open(file_path, 'r', encoding='utf-8-sig') as opened_file:
         try:
             config_json_file = json.load(opened_file)
         except ValueError:
             logging.info("Can't load JSON-file..")
+            showerror("Error", "Can't load JSON-file!")
             sys.exit(1)
         logging.info(f"file {opened_file.name} is parsed")
 
     # Получение имени контроллера, сконфигурированном в файле конфигурации
     if config_json_file['ModulesIO'][0]['Name']:
         plc_name_from_config = config_json_file['ModulesIO'][0]['Name']
+        logging.info(f"plc_name_from_config: {plc_name_from_config}")
+
         # Проверка и заполнение ExternalLoggers
-        if len(config_json_file['ExternalLoggers']) != 0:
+        if len(config_json_file['ExternalLoggers']) == 0:
             config_json_file['ExternalLoggers'] = [
                 {
                     "Name": "test_logger",
@@ -50,12 +60,12 @@ def fill_new_config(file_path):
                     ]
                 }
             ]
+            logging.info("New ExternalLoggers added.")
         else:
             logging.info("ExternalLoggers are not empty!")
-            sys.exit(1)
 
         # Проверка и заполнение ExternalLoggingMessages
-        if len(config_json_file['ExternalLoggingMessages']) != 0:
+        if len(config_json_file['ExternalLoggingMessages']) == 0:
             config_json_file['ExternalLoggingMessages'] = [
                 {
                     "Name": "message1",
@@ -72,14 +82,16 @@ def fill_new_config(file_path):
                     "MessageFormat": "test for message2 with argument = {0}"
                 }
             ]
+            logging.info("New ExternalLoggingMessages added.")
         else:
             logging.info("ExternalLoggingMessages are not empty!")
-            sys.exit(1)
 
         # Запись обновлённого файла (с сохранением форматирования)
-        new_filename = "edit_" + file_path
-        with open(new_filename, 'w', encoding='utf-8') as opened_file:
+        new_filename = file_path + "_edit"
+        with open(new_filename, '+w', encoding='utf-8') as opened_file:
             json.dump(config_json_file, opened_file, ensure_ascii=False, indent=2)
+            logging.info("New config file saved")
+            showinfo("ExternalLoggers", "New config file saved!")
     else:
         logging.info("Modules IO // Name is empty")
         sys.exit(1)
@@ -89,6 +101,9 @@ def main():
     # Конфигурирование логгера
     logging.basicConfig(filename="general.log", level=logging.INFO,
                         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+
+
 
     parser = argparse.ArgumentParser()
     parser.add_argument('input_file')
