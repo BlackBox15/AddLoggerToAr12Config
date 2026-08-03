@@ -9,7 +9,60 @@ import sys
 from tkinter import Tk
 from tkinter.messagebox import showinfo, showerror
 
+from PySide6.QtWidgets import QApplication, QMainWindow
+
+from ui_mainwindow3 import Ui_MainWindow
+
 logger = logging.getLogger()
+
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super(MainWindow, self).__init__()
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
+
+        self.setAcceptDrops(True)
+
+    def dragEnterEvent(self, event):
+        mimetype = event.mimeData().hasText()
+        mimeData = event.mimeData()
+
+        if mimeData.hasUrls():
+            urls = mimeData.urls()
+            for url in urls:
+                if url.isLocalFile() and url.toLocalFile().lower().endswith(".json"):
+                    event.acceptProposedAction()
+                    return
+
+        event.ignore()
+
+        if mimetype:
+            # if event.mimeData().hasFormat("text/plain"):
+            event.acceptProposedAction()
+
+    def dropEvent(self, event):
+        self.ui.lblStatusText.setText(event.mimeData().text())
+
+        # Получаем список URL перетаскиваемых объектов
+        urls = event.mimeData().urls()
+        if len(urls) == 1:
+            # Берём первый файл (можно обработать несколько)
+            file_path = urls[0].toLocalFile()
+            try:
+                # Читаем файл и парсим JSON
+                with open(file_path, 'r', encoding='utf-8-sig') as f:
+                    data = json.load(f)  # парсим JSON в словарь/список
+                # Преобразуем обратно в отформатированную строку
+                formatted_json = json.dumps(data, indent=4, ensure_ascii=False)
+                # Выводим в label
+                self.ui.lblStatusText.setText(formatted_json)
+            except Exception as e:
+                self.ui.lblStatusText.setText(f"Ошибка при чтении/парсинге JSON:\n{str(e)}")
+        else:
+            self.ui.lblStatusText.setText("Не удалось получить файл")
+
+        event.acceptProposedAction()
 
 
 def fill_new_config(file_path):
@@ -125,4 +178,10 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    app = QApplication(sys.argv)
+
+    window = MainWindow()
+    window.show()
+
+    sys.exit(app.exec())
+    # main()
