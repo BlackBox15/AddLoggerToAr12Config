@@ -6,6 +6,7 @@ import json
 import logging
 import os
 import sys
+from json import JSONDecodeError
 from tkinter import Tk
 from tkinter.messagebox import showinfo, showerror
 
@@ -23,6 +24,9 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
 
         self.setAcceptDrops(True)
+        self.ui.lineStartRegiter.setText("40050")
+        self.ui.lineMessageQty.setText("3")
+
 
     def dragEnterEvent(self, event):
         mimetype = event.mimeData().hasText()
@@ -49,20 +53,35 @@ class MainWindow(QMainWindow):
         if len(urls) == 1:
             # Берём первый файл (можно обработать несколько)
             file_path = urls[0].toLocalFile()
-            try:
-                # Читаем файл и парсим JSON
-                with open(file_path, 'r', encoding='utf-8-sig') as f:
-                    data = json.load(f)  # парсим JSON в словарь/список
-                # Преобразуем обратно в отформатированную строку
-                formatted_json = json.dumps(data, indent=4, ensure_ascii=False)
-                # Выводим в label
-                self.ui.lblStatusText.setText(formatted_json)
-            except Exception as e:
-                self.ui.lblStatusText.setText(f"Ошибка при чтении/парсинге JSON:\n{str(e)}")
+            with open(file_path, 'r', encoding='utf-8-sig') as opened_file:
+                try:
+                    data = json.load(opened_file)
+                except JSONDecodeError:
+                    self.ui.lblStatusText.setText(f"Ошибка при чтении/парсинге JSON:\n{str(e)}")
+                except UnicodeDecodeError:
+                    self.ui.lblStatusText.setText(f"Ошибка по Unicode:\n{str(e)}")
+            plc_name = get_plc_name_from_config(data)
+            self.ui.lblStatusText.setText(plc_name)
+
         else:
             self.ui.lblStatusText.setText("Не удалось получить файл")
 
         event.acceptProposedAction()
+
+
+def get_plc_name_from_config(config_dict: dict) -> str:
+    """
+    Получение имени контроллера из файла конфигурации
+    :param config_dict:
+    :return: имя контроллера
+    """
+    plc_name = "no data"
+    if len(config_dict['ModulesIO']) != 0:
+        plc_name = config_dict['ModulesIO'][0]['Name']
+
+    return plc_name
+
+
 
 
 def fill_new_config(file_path):
