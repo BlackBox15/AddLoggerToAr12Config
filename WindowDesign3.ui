@@ -20,13 +20,16 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>120</y>
+     <y>140</y>
      <width>281</width>
-     <height>71</height>
+     <height>141</height>
     </rect>
    </property>
    <property name="text">
     <string>Перетащить configuration.json</string>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QLabel" name="lblStartRegister">
@@ -40,29 +43,6 @@
    </property>
    <property name="text">
     <string>Стартовый регистр струкруты сообщений</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="lblPlcName">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>20</y>
-     <width>191</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Имя ПЛК в configuration</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="linePlcName">
-   <property name="geometry">
-    <rect>
-     <x>260</x>
-     <y>10</y>
-     <width>171</width>
-     <height>26</height>
-    </rect>
    </property>
   </widget>
   <widget class="QLineEdit" name="lineStartRegiter">
@@ -82,7 +62,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>50</y>
+     <y>40</y>
      <width>191</width>
      <height>16</height>
     </rect>
@@ -95,7 +75,7 @@
    <property name="geometry">
     <rect>
      <x>260</x>
-     <y>40</y>
+     <y>30</y>
      <width>171</width>
      <height>26</height>
     </rect>
@@ -107,8 +87,8 @@
   <widget class="QPushButton" name="btnOk">
    <property name="geometry">
     <rect>
-     <x>360</x>
-     <y>140</y>
+     <x>350</x>
+     <y>150</y>
      <width>81</width>
      <height>26</height>
     </rect>
@@ -120,11 +100,9 @@
   <zorder>lblStatusText</zorder>
   <zorder>lblMessageQty</zorder>
   <zorder>lblStartRegister</zorder>
-  <zorder>lblPlcName</zorder>
   <zorder>lineMessageQty</zorder>
   <zorder>lineStartRegiter</zorder>
   <zorder>btnOk</zorder>
-  <zorder>linePlcName</zorder>
  </widget>
  <resources/>
  <connections/>

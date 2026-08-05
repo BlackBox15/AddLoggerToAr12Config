@@ -26,7 +26,13 @@ class MainWindow(QMainWindow):
         self.setAcceptDrops(True)
         self.ui.lineStartRegiter.setText("40050")
         self.ui.lineMessageQty.setText("3")
+        msgQty = int(self.ui.lineMessageQty.text())
+        startRegister = int(self.ui.lineStartRegiter.text())
+        self.ui.lineMessageQty.returnPressed.connect(self.new_data_from_line)
 
+    def new_data_from_line(self):
+        # self.ui.lblStatusText.setText(event.mimeData().text())
+        pass
 
     def dragEnterEvent(self, event):
         mimetype = event.mimeData().hasText()
@@ -46,12 +52,12 @@ class MainWindow(QMainWindow):
             event.acceptProposedAction()
 
     def dropEvent(self, event):
-        self.ui.lblStatusText.setText(event.mimeData().text())
+        # self.ui.lblStatusText.setText(event.mimeData().text())
 
         # Получаем список URL перетаскиваемых объектов
         urls = event.mimeData().urls()
-        if len(urls) == 1:
-            # Берём первый файл (можно обработать несколько)
+        # проверки URL объекта
+        if len(urls) == 1 and urls[0].isLocalFile() and urls[0].toLocalFile().lower().endswith(".json"):
             file_path = urls[0].toLocalFile()
             with open(file_path, 'r', encoding='utf-8-sig') as opened_file:
                 try:
@@ -62,7 +68,6 @@ class MainWindow(QMainWindow):
                     self.ui.lblStatusText.setText(f"Ошибка по Unicode:\n{str(e)}")
             plc_name = get_plc_name_from_config(data)
             self.ui.lblStatusText.setText(plc_name)
-
         else:
             self.ui.lblStatusText.setText("Не удалось получить файл")
 
@@ -82,6 +87,61 @@ def get_plc_name_from_config(config_dict: dict) -> str:
     return plc_name
 
 
+def fill_new_config_dict(old_config_dict: dict, plc_name: str) -> dict:
+    """
+    :param old_config_dict: старый словарь конфигурации
+    :param plc_name: имя контроллера
+    :return: новый словарь конфигурации
+    """
+    if len(old_config_dict['ExternalLoggers']) == 0:
+        old_config_dict['ExternalLoggers'] = [
+            {
+                "Name": "test_logger",
+                "IsInitialized": True,
+                "IsUsing": True,
+                "ModuleIOName": plc_name,
+                "FutureEntryRelayNumber": 40050,
+                # адрес регистра LogIndex, его формат dword, поэтому адресация вида 40ххх
+                "ExternalLoggerLines": [
+                    {  # структура данных 1-го события
+                        "TimeRelayNumber": 40052,  # адрес регистра времени 1-го события, формат dword
+                        "EventRelayNumber": 10054,  # адрес регистра порядкового номера события (id), формат word
+                        "ArgRelayNuber": 10055  # адрес регистра аргумента, формат величины - word, не используется
+                    },
+                    {  # структура данных 1-го события
+                        "TimeRelayNumber": 40056,  # адрес регистра времени 1-го события, формат dword
+                        "EventRelayNumber": 10058,  # адрес регистра порядкового номера события (id), формат word
+                        "ArgRelayNuber": 10059  # адрес регистра аргумента, формат величины - word, не используется
+                    }
+                ]
+            }
+        ]
+        logging.info("New ExternalLoggers added.")
+    else:
+        logging.info("ExternalLoggers are not empty!")
+
+    # Проверка и заполнение ExternalLoggingMessages
+    if len(old_config_dict['ExternalLoggingMessages']) == 0:
+        old_config_dict['ExternalLoggingMessages'] = [
+            {
+                "Name": "message1",
+                "IsEnabled": True,
+                "EventIndex": 1,
+                "LoggerName": "test_logger",
+                "MessageFormat": "test for message1 with argument = {0}"
+            },
+            {
+                "Name": "message2",
+                "IsEnabled": True,
+                "EventIndex": 2,
+                "LoggerName": "test_logger",
+                "MessageFormat": "test for message2 with argument = {0}"
+            }
+        ]
+        logging.info("New ExternalLoggingMessages added.")
+    else:
+        logging.info("ExternalLoggingMessages are not empty!")
+    pass
 
 
 def fill_new_config(file_path):
