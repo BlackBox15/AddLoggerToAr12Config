@@ -22,17 +22,20 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-
         self.setAcceptDrops(True)
         self.ui.lineStartRegiter.setText("40050")
         self.ui.lineMessageQty.setText("3")
-        msgQty = int(self.ui.lineMessageQty.text())
-        startRegister = int(self.ui.lineStartRegiter.text())
-        self.ui.lineMessageQty.returnPressed.connect(self.new_data_from_line)
+        self.msgQty = int(self.ui.lineMessageQty.text())
+        self.startRegister = int(self.ui.lineStartRegiter.text())
+        self.ui.lineMessageQty.returnPressed.connect(self.msg_qty_value)
+        self.ui.lineStartRegiter.returnPressed.connect(self.start_register_value)
 
-    def new_data_from_line(self):
+    def msg_qty_value(self):
         # self.ui.lblStatusText.setText(event.mimeData().text())
-        pass
+        self.msgQty = int(self.ui.lineMessageQty.text())
+
+    def start_register_value(self):
+        self.startRegister = int(self.ui.lineStartRegiter.text())
 
     def dragEnterEvent(self, event):
         mimetype = event.mimeData().hasText()
@@ -62,19 +65,20 @@ class MainWindow(QMainWindow):
             with open(file_path, 'r', encoding='utf-8-sig') as opened_file:
                 try:
                     data = json.load(opened_file)
-                except JSONDecodeError:
-                    self.ui.lblStatusText.setText(f"Ошибка при чтении/парсинге JSON:\n{str(e)}")
-                except UnicodeDecodeError:
-                    self.ui.lblStatusText.setText(f"Ошибка по Unicode:\n{str(e)}")
-            plc_name = get_plc_name_from_config(data)
+                except JSONDecodeError as e:
+                    self.ui.lblStatusText.setText(f"Ошибка при чтении/парсинге JSON")
+                except UnicodeDecodeError as e:
+                    self.ui.lblStatusText.setText(f"Ошибка по Unicode")
+            plc_name = get_plc_name(data)
+
             self.ui.lblStatusText.setText(plc_name)
         else:
-            self.ui.lblStatusText.setText("Не удалось получить файл")
+            self.ui.lblStatusText.setText("Неподходящий тип файла")
 
         event.acceptProposedAction()
 
 
-def get_plc_name_from_config(config_dict: dict) -> str:
+def get_plc_name(config_dict: dict) -> str:
     """
     Получение имени контроллера из файла конфигурации
     :param config_dict:
@@ -87,14 +91,14 @@ def get_plc_name_from_config(config_dict: dict) -> str:
     return plc_name
 
 
-def fill_new_config_dict(old_config_dict: dict, plc_name: str) -> dict:
+def write_new_config(config_dict: dict, plc_name: str) -> dict:
     """
-    :param old_config_dict: старый словарь конфигурации
+    :param config_dict: старый словарь конфигурации
     :param plc_name: имя контроллера
     :return: новый словарь конфигурации
     """
-    if len(old_config_dict['ExternalLoggers']) == 0:
-        old_config_dict['ExternalLoggers'] = [
+    if len(config_dict['ExternalLoggers']) == 0:
+        config_dict['ExternalLoggers'] = [
             {
                 "Name": "test_logger",
                 "IsInitialized": True,
@@ -121,8 +125,8 @@ def fill_new_config_dict(old_config_dict: dict, plc_name: str) -> dict:
         logging.info("ExternalLoggers are not empty!")
 
     # Проверка и заполнение ExternalLoggingMessages
-    if len(old_config_dict['ExternalLoggingMessages']) == 0:
-        old_config_dict['ExternalLoggingMessages'] = [
+    if len(config_dict['ExternalLoggingMessages']) == 0:
+        config_dict['ExternalLoggingMessages'] = [
             {
                 "Name": "message1",
                 "IsEnabled": True,
@@ -142,6 +146,8 @@ def fill_new_config_dict(old_config_dict: dict, plc_name: str) -> dict:
     else:
         logging.info("ExternalLoggingMessages are not empty!")
     pass
+
+    return config_dict
 
 
 def fill_new_config(file_path):
