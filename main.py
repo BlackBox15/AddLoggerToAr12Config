@@ -10,11 +10,19 @@ from json import JSONDecodeError
 from tkinter import Tk
 from tkinter.messagebox import showinfo, showerror
 
-from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
+from PySide6.QtWidgets import QApplication, QMainWindow
 
 from ui_mainwindow3 import Ui_MainWindow
 
-logger = logging.getLogger()
+logging.basicConfig(filename="./log/AddLogger.log", level=logging.INFO,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S')
+
+app_logger = logging.getLogger()
+
+
+class NoPlcNameException(Exception):
+    pass
 
 
 class MainWindow(QMainWindow):
@@ -27,14 +35,11 @@ class MainWindow(QMainWindow):
         self.ui.lineMessageQty.setText("3")
         self.msgQty = int(self.ui.lineMessageQty.text())
         self.startRegister = int(self.ui.lineStartRegiter.text())
-        self.ui.lineMessageQty.returnPressed.connect(self.msg_qty_value)
-        self.ui.lineStartRegiter.returnPressed.connect(self.start_register_value)
 
-    def msg_qty_value(self):
-        # self.ui.lblStatusText.setText(event.mimeData().text())
+    def set_message_qty(self):
         self.msgQty = int(self.ui.lineMessageQty.text())
 
-    def start_register_value(self):
+    def set_start_register(self):
         self.startRegister = int(self.ui.lineStartRegiter.text())
 
     def dragEnterEvent(self, event):
@@ -51,32 +56,43 @@ class MainWindow(QMainWindow):
         event.ignore()
 
         if mimetype:
-            # if event.mimeData().hasFormat("text/plain"):
             event.acceptProposedAction()
 
     def dropEvent(self, event):
-        # self.ui.lblStatusText.setText(event.mimeData().text())
 
         # Получаем список URL перетаскиваемых объектов
         urls = event.mimeData().urls()
         # проверки URL объекта
         if len(urls) == 1 and urls[0].isLocalFile() and urls[0].toLocalFile().lower().endswith(".json"):
             file_path = urls[0].toLocalFile()
+
+            # Открытие файла
             with open(file_path, 'r', encoding='utf-8-sig') as opened_file:
                 try:
                     data = json.load(opened_file)
-                except JSONDecodeError as e:
+                    try:
+                        plc_name = get_plc_name(data)
+                    except NoPlcNameException:
+                        plc_name = ""
+                        self.ui.lblStatusText.setText("В файле конфигурации не обозначено имя ПЛК")
+                        app_logger.info("В файле конфигурации не обозначено имя ПЛК")
+
+                    if plc_name != "":
+                        self.set_start_register()
+                        self.set_message_qty()
+                        new_config_dict = filling_new_config(data, plc_name, self.startRegister, self.msgQty)
+
+                        # Запись файла
+                        with open(file_path, 'w', encoding='utf-8-sig') as opened_file:
+                            json.dump(new_config_dict, opened_file, indent=2, ensure_ascii=False)
+                            self.ui.lblStatusText.setText("Конфиг обновлён")
+                            # QMessageBox.information(self, "Заголовок", "Конфиг обновлён")
+                except JSONDecodeError:
+                    app_logger.error("Ошибка при чтении/парсинге JSON")
                     self.ui.lblStatusText.setText(f"Ошибка при чтении/парсинге JSON")
-                except UnicodeDecodeError as e:
+                except UnicodeDecodeError:
+                    app_logger.error("Ошибка по Unicode")
                     self.ui.lblStatusText.setText(f"Ошибка по Unicode")
-            plc_name = get_plc_name(data)
-
-            new_config_dict = write_new_config(data, plc_name)
-            with open(file_path, 'w', encoding='utf-8-sig') as opened_file:
-                json.dump(new_config_dict, opened_file, indent=2, ensure_ascii=False)
-                QMessageBox.information(self, "Заголовок", "Конфиг обновлён")
-
-            self.ui.lblStatusText.setText(plc_name)
         else:
             self.ui.lblStatusText.setText("Неподходящий тип файла")
 
@@ -90,13 +106,14 @@ def get_plc_name(config_dict: dict) -> str:
     :return: имя контроллера
     """
     plc_name = "no data"
-    if len(config_dict['ModulesIO']) != 0:
+    if len(config_dict['ModulesIO'][0]['Name']) != 0:
         plc_name = config_dict['ModulesIO'][0]['Name']
-
+    else:
+        raise NoPlcNameException(plc_name)
     return plc_name
 
 
-def write_new_config(config_dict: dict, plc_name: str, start_register: int, messages_qty: int) -> dict:
+def filling_new_config(config_dict: dict, plc_name: str, start_register: int, messages_qty: int) -> dict:
     """
     :param messages_qty:
     :param start_register:
@@ -105,77 +122,46 @@ def write_new_config(config_dict: dict, plc_name: str, start_register: int, mess
     :return: новый словарь конфигурации
     """
 
-    new_lines = list()
-    new_array_lines = list()
-    incrementor = start_register - 40000
+    logger_events_list = list()
+    logger_messages_list = list()
 
     for i in range(messages_qty):
-        new_dict = {
-            "TimeRelayNumber": 40000 + incrementor + 2,
-            "EventRelayNumber": start_register,
-            "ArgRelayNuber": start_register
+        logger_one_event_dict = {
+            "TimeRelayNumber": start_register + (i * 4) + 2,
+            "EventRelayNumber": (start_register - 30_000) + (i * 4) + 4,
+            "ArgRelayNuber": (start_register - 30_000) + (i * 4) + 5
         }
-        new_array_lines_dict = {
-            "Name": "message" + str(i+1),
+        logger_one_message_dict = {
+            "Name": "message" + str(i + 1),
             "IsEnabled": True,
-            "EventIndex": (i+1),
-            "LoggerName": "test_logger",
-            "MessageFormat": "test for message1 with argument = {0}"
+            "EventIndex": (i + 1),
+            "LoggerName": "Logger1",
+            "MessageFormat": "test for message" + str(i + 1) + " with argument = {0}"
         }
-        new_lines.append(new_dict)
-        new_array_lines.append(new_array_lines_dict)
-
-
+        logger_events_list.append(logger_one_event_dict)
+        logger_messages_list.append(logger_one_message_dict)
 
     if len(config_dict['ExternalLoggers']) == 0:
         config_dict['ExternalLoggers'] = [
             {
-                "Name": "test_logger",
+                "Name": "Logger1",
                 "IsInitialized": False,
                 "IsUsing": False,
                 "ModuleIOName": plc_name,
                 "FutureEntryRelayNumber": start_register,
-                # адрес регистра LogIndex, его формат dword, поэтому адресация вида 40ххх
-                "ExternalLoggerLines": [
-                    {  # структура данных 1-го события
-                        "TimeRelayNumber": 40052,  # адрес регистра времени 1-го события, формат dword
-                        "EventRelayNumber": 10054,  # адрес регистра порядкового номера события (id), формат word
-                        "ArgRelayNuber": 10055  # адрес регистра аргумента, формат величины - word, не используется
-                    },
-                    {  # структура данных 1-го события
-                        "TimeRelayNumber": 40056,  # адрес регистра времени 1-го события, формат dword
-                        "EventRelayNumber": 10058,  # адрес регистра порядкового номера события (id), формат word
-                        "ArgRelayNuber": 10059  # адрес регистра аргумента, формат величины - word, не используется
-                    }
-                ]
+                "ExternalLoggerLines": []
             }
         ]
-        logging.info("New ExternalLoggers added.")
+        config_dict['ExternalLoggers'][0]['ExternalLogger Lines'] = logger_events_list
+        app_logger.info("New ExternalLoggers added.")
     else:
-        logging.info("ExternalLoggers are not empty!")
+        app_logger.info("поле ExternalLoggers не пустое")
 
-    # Проверка и заполнение ExternalLoggingMessages
     if len(config_dict['ExternalLoggingMessages']) == 0:
-        config_dict['ExternalLoggingMessages'] = [
-            {
-                "Name": "message1",
-                "IsEnabled": True,
-                "EventIndex": 1,
-                "LoggerName": "test_logger",
-                "MessageFormat": "test for message1 with argument = {0}"
-            },
-            {
-                "Name": "message2",
-                "IsEnabled": True,
-                "EventIndex": 2,
-                "LoggerName": "test_logger",
-                "MessageFormat": "test for message2 with argument = {0}"
-            }
-        ]
-        logging.info("New ExternalLoggingMessages added.")
+        config_dict['ExternalLoggingMessages'] = logger_messages_list
+        app_logger.info("New ExternalLoggingMessages added.")
     else:
-        logging.info("ExternalLoggingMessages are not empty!")
-    pass
+        app_logger.info("поле ExternalLoggingMessages не пустое")
 
     return config_dict
 
@@ -193,15 +179,15 @@ def fill_new_config(file_path):
         try:
             config_json_file = json.load(opened_file)
         except ValueError:
-            logging.info("Can't load JSON-file..")
+            app_logger.info("Can't load JSON-file..")
             showerror("Error", "Can't load JSON-file!")
             sys.exit(1)
-        logging.info(f"file {opened_file.name} is parsed")
+        app_logger.info(f"file {opened_file.name} is parsed")
 
     # Получение имени контроллера, сконфигурированном в файле конфигурации
     if config_json_file['ModulesIO'][0]['Name']:
         plc_name_from_config = config_json_file['ModulesIO'][0]['Name']
-        logging.info(f"plc_name_from_config: {plc_name_from_config}")
+        app_logger.info(f"plc_name_from_config: {plc_name_from_config}")
 
         # Проверка и заполнение ExternalLoggers
         if len(config_json_file['ExternalLoggers']) == 0:
@@ -227,9 +213,9 @@ def fill_new_config(file_path):
                     ]
                 }
             ]
-            logging.info("New ExternalLoggers added.")
+            app_logger.info("New ExternalLoggers added.")
         else:
-            logging.info("ExternalLoggers are not empty!")
+            app_logger.info("ExternalLoggers are not empty!")
 
         # Проверка и заполнение ExternalLoggingMessages
         if len(config_json_file['ExternalLoggingMessages']) == 0:
@@ -249,9 +235,9 @@ def fill_new_config(file_path):
                     "MessageFormat": "test for message2 with argument = {0}"
                 }
             ]
-            logging.info("New ExternalLoggingMessages added.")
+            app_logger.info("New ExternalLoggingMessages added.")
         else:
-            logging.info("ExternalLoggingMessages are not empty!")
+            app_logger.info("ExternalLoggingMessages are not empty!")
 
         # Запись обновлённого файла (с сохранением форматирования)
         new_filename = file_path + "_edit"
@@ -260,14 +246,12 @@ def fill_new_config(file_path):
             logging.info("New config file saved")
             showinfo("ExternalLoggers", "New config file saved!")
     else:
-        logging.info("Modules IO // Name is empty")
+        app_logger.info("Modules IO // Name is empty")
         sys.exit(1)
 
 
 def main():
     # Конфигурирование логгера
-    logging.basicConfig(filename="general.log", level=logging.INFO,
-                        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
     parser = argparse.ArgumentParser()
     parser.add_argument('input_file')
@@ -277,7 +261,7 @@ def main():
     # Проверка открываемого файла
     if str(args.input_file) == 'None':
         print("Input file is empty!")
-        logger.info("Input file is empty!")
+        app_logger.info("Input file is empty!")
         sys.exit(1)
 
     if not os.path.exists(args.input_file):
@@ -288,7 +272,7 @@ def main():
         print(f"Error: '{args.input_file}' is not a file.")
         sys.exit(1)
 
-    logger.info(f"Input file: {args.input_file}")
+    app_logger.info(f"Input file: {args.input_file}")
     fill_new_config(args.input_file)
 
 

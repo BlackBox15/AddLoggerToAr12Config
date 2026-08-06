@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>466</width>
-    <height>300</height>
+    <width>500</width>
+    <height>200</height>
    </rect>
   </property>
   <property name="acceptDrops">
@@ -20,13 +20,13 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>140</y>
-     <width>281</width>
-     <height>141</height>
+     <y>120</y>
+     <width>471</width>
+     <height>71</height>
     </rect>
    </property>
    <property name="text">
-    <string>Перетащить configuration.json</string>
+    <string>Перетащите сюда configuration.json</string>
    </property>
    <property name="wordWrap">
     <bool>true</bool>
@@ -35,21 +35,21 @@
   <widget class="QLabel" name="lblStartRegister">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>80</y>
+     <x>30</x>
+     <y>90</y>
      <width>241</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>Стартовый регистр струкруты сообщений</string>
+    <string>Стартовый регистр структуры сообщений</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="lineStartRegiter">
    <property name="geometry">
     <rect>
-     <x>260</x>
-     <y>70</y>
+     <x>280</x>
+     <y>80</y>
      <width>171</width>
      <height>26</height>
     </rect>
@@ -61,21 +61,21 @@
   <widget class="QLabel" name="lblMessageQty">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>40</y>
-     <width>191</width>
+     <x>30</x>
+     <y>50</y>
+     <width>201</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>Количество сообщений логгера</string>
+    <string>Количество сообщений в логгере</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="lineMessageQty">
    <property name="geometry">
     <rect>
-     <x>260</x>
-     <y>30</y>
+     <x>280</x>
+     <y>40</y>
      <width>171</width>
      <height>26</height>
     </rect>
@@ -84,25 +84,11 @@
     <set>Qt::InputMethodHint::ImhDigitsOnly</set>
    </property>
   </widget>
-  <widget class="QPushButton" name="btnOk">
-   <property name="geometry">
-    <rect>
-     <x>350</x>
-     <y>150</y>
-     <width>81</width>
-     <height>26</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Ok</string>
-   </property>
-  </widget>
   <zorder>lblStatusText</zorder>
   <zorder>lblMessageQty</zorder>
   <zorder>lblStartRegister</zorder>
   <zorder>lineMessageQty</zorder>
   <zorder>lineStartRegiter</zorder>
-  <zorder>btnOk</zorder>
  </widget>
  <resources/>
  <connections/>
