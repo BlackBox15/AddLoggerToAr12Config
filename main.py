@@ -10,7 +10,7 @@ from json import JSONDecodeError
 from tkinter import Tk
 from tkinter.messagebox import showinfo, showerror
 
-from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
 
 from ui_mainwindow3 import Ui_MainWindow
 
@@ -71,6 +71,11 @@ class MainWindow(QMainWindow):
                     self.ui.lblStatusText.setText(f"Ошибка по Unicode")
             plc_name = get_plc_name(data)
 
+            new_config_dict = write_new_config(data, plc_name)
+            with open(file_path, 'w', encoding='utf-8-sig') as opened_file:
+                json.dump(new_config_dict, opened_file, indent=2, ensure_ascii=False)
+                QMessageBox.information(self, "Заголовок", "Конфиг обновлён")
+
             self.ui.lblStatusText.setText(plc_name)
         else:
             self.ui.lblStatusText.setText("Неподходящий тип файла")
@@ -91,20 +96,45 @@ def get_plc_name(config_dict: dict) -> str:
     return plc_name
 
 
-def write_new_config(config_dict: dict, plc_name: str) -> dict:
+def write_new_config(config_dict: dict, plc_name: str, start_register: int, messages_qty: int) -> dict:
     """
+    :param messages_qty:
+    :param start_register:
     :param config_dict: старый словарь конфигурации
     :param plc_name: имя контроллера
     :return: новый словарь конфигурации
     """
+
+    new_lines = list()
+    new_array_lines = list()
+    incrementor = start_register - 40000
+
+    for i in range(messages_qty):
+        new_dict = {
+            "TimeRelayNumber": 40000 + incrementor + 2,
+            "EventRelayNumber": start_register,
+            "ArgRelayNuber": start_register
+        }
+        new_array_lines_dict = {
+            "Name": "message" + str(i+1),
+            "IsEnabled": True,
+            "EventIndex": (i+1),
+            "LoggerName": "test_logger",
+            "MessageFormat": "test for message1 with argument = {0}"
+        }
+        new_lines.append(new_dict)
+        new_array_lines.append(new_array_lines_dict)
+
+
+
     if len(config_dict['ExternalLoggers']) == 0:
         config_dict['ExternalLoggers'] = [
             {
                 "Name": "test_logger",
-                "IsInitialized": True,
-                "IsUsing": True,
+                "IsInitialized": False,
+                "IsUsing": False,
                 "ModuleIOName": plc_name,
-                "FutureEntryRelayNumber": 40050,
+                "FutureEntryRelayNumber": start_register,
                 # адрес регистра LogIndex, его формат dword, поэтому адресация вида 40ххх
                 "ExternalLoggerLines": [
                     {  # структура данных 1-го события
