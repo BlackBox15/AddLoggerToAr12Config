@@ -10,7 +10,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 
 from ui_mainwindow3 import Ui_MainWindow
 
-logging.basicConfig(filename="./log/AddLogger.log", level=logging.INFO,
+logging.basicConfig(filename="./AddLogger.log", level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S')
 
