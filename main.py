@@ -33,14 +33,24 @@ class MainWindow(QMainWindow):
         self.setAcceptDrops(True)
         self.ui.lineStartRegiter.setText("40050")
         self.ui.lineMessageQty.setText("3")
-        self.msgQty = int(self.ui.lineMessageQty.text())
-        self.startRegister = int(self.ui.lineStartRegiter.text())
+        self._messages_quantity = int(self.ui.lineMessageQty.text())
+        self._start_register_field = int(self.ui.lineStartRegiter.text())
 
-    def set_message_qty(self):
-        self.msgQty = int(self.ui.lineMessageQty.text())
+    @property
+    def message_quantity(self):
+        return self._messages_quantity
+    
+    @message_quantity.setter
+    def message_quantity(self, value):
+        self._start_register_field = value
 
-    def set_start_register(self):
-        self.startRegister = int(self.ui.lineStartRegiter.text())
+    @property
+    def start_register_field(self):
+        return self._messages_quantity
+
+    @start_register_field.setter
+    def start_register_field(self, value):
+        self._start_register_field = value
 
     def dragEnterEvent(self, event):
         mimetype = event.mimeData().hasText()
@@ -78,9 +88,11 @@ class MainWindow(QMainWindow):
                         app_logger.info("В файле конфигурации не обозначено имя ПЛК")
 
                     if plc_name != "":
-                        self.set_start_register()
-                        self.set_message_qty()
-                        new_config_dict = filling_new_config(data, plc_name, self.startRegister, self.msgQty)
+                        # self.set_start_register()
+                        # self.set_message_qty()
+                        self.message_quantity = int(self.ui.lineMessageQty.text())
+                        self.start_register_field = int(self.ui.lineStartRegiter.text())
+                        new_config_dict = filling_new_config(data, plc_name, self.start_register_field, self.message_quantity)
 
                         # Запись файла
                         with open(file_path, 'w', encoding='utf-8-sig') as opened_file:
