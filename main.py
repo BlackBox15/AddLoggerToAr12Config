@@ -176,9 +176,9 @@ def filling_new_config(config_dict: dict, plc_name: str, start_register: int, me
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    # print(QStyleFactory.keys())     # перечень возможных стилей: ['windows11', 'windowsvista', 'Windows', 'Fusion']
     app.setStyle('Fusion')          # установка стиля Fusion для корректной обработки светлой / тёмной тем оформления
     # app_logger.info(f"Текущий стиль приложения - {app.style().name()}")
-    # print(QStyleFactory.keys())     # перечень возможных стилей: ['windows11', 'windowsvista', 'Windows', 'Fusion']
     window = MainWindow()
     window.show()
 
