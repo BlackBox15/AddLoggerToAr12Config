@@ -6,13 +6,13 @@ import logging
 import sys
 from json import JSONDecodeError
 
-from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtWidgets import QApplication, QMainWindow, QStyleFactory
 
 from ui_mainwindow3 import Ui_MainWindow
 
 logging.basicConfig(filename="./AddLogger.log", level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S')
+                    datefmt='%Y-%m-%d %H:%M:%S', encoding="utf-8")
 
 app_logger = logging.getLogger()
 
@@ -176,6 +176,8 @@ def filling_new_config(config_dict: dict, plc_name: str, start_register: int, me
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    app.setStyle('fusion')
+    # app_logger.info(f"Текущий стиль приложения - {app.style().name()}")
 
     window = MainWindow()
     window.show()
