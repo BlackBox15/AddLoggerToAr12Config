@@ -24,13 +24,25 @@ class NoPlcNameException(Exception):
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
+        # self._messages_quantity = None
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.setAcceptDrops(True)
         self.ui.lineStartRegiter.setText("40050")
         self.ui.lineMessageQty.setText("3")
-        self._messages_quantity = int(self.ui.lineMessageQty.text())
-        self._start_register_field = int(self.ui.lineStartRegiter.text())
+        self.messages_quantity = int(self.ui.lineMessageQty.text())
+        self.start_register_field = int(self.ui.lineStartRegiter.text())
+        self.another_value = 13
+
+
+
+    @property
+    def another_value(self):
+        return self._another_value
+
+    @another_value.setter
+    def another_value(self, value):
+        self._another_value = value
 
     @property
     def message_quantity(self):
@@ -38,11 +50,11 @@ class MainWindow(QMainWindow):
 
     @message_quantity.setter
     def message_quantity(self, value):
-        self._start_register_field = value
+        self._messages_quantity = value
 
     @property
     def start_register_field(self):
-        return self._messages_quantity
+        return self._start_register_field
 
     @start_register_field.setter
     def start_register_field(self, value):
@@ -78,6 +90,7 @@ class MainWindow(QMainWindow):
                     data = json.load(opened_file)
                     try:
                         plc_name = get_plc_name(data)
+                    #     todo: сделать проверку доступности 503-го порта, создать 503-й порт в конфигурации
                     except NoPlcNameException:
                         plc_name = ""
                         self.ui.lblStatusText.setText("В файле конфигурации не обозначено имя ПЛК")
@@ -85,7 +98,12 @@ class MainWindow(QMainWindow):
 
                     if plc_name != "":
                         self.message_quantity = int(self.ui.lineMessageQty.text())
+
+
                         self.start_register_field = int(self.ui.lineStartRegiter.text())
+                        app_logger.info("Событие дроп, новых сообщений: %d " % self.message_quantity)
+                        app_logger.info("Событие дроп, стартовый регистр: %d " % self.start_register_field)
+
                         new_config_dict = filling_new_config(data, plc_name, self.start_register_field,
                                                              self.message_quantity)
 
@@ -115,6 +133,7 @@ def get_plc_name(config_dict: dict) -> str:
     plc_name = "no data"
     if len(config_dict['ModulesIO'][0]['Name']) != 0:
         plc_name = config_dict['ModulesIO'][0]['Name']
+        print(json.dumps(config_dict['ModulesIO'][0], indent=4, sort_keys=True, ensure_ascii=False))
     else:
         raise NoPlcNameException(plc_name)
     return plc_name
@@ -129,6 +148,8 @@ def filling_new_config(config_dict: dict, plc_name: str, start_register: int, me
     :param plc_name: имя контроллера
     :return: новый словарь конфигурации
     """
+    app_logger.info("Заполнение обновлённого конфига, новых сообщений: %d " % messages_qty)
+    app_logger.info("Заполнение обновлённого конфига, стартовый регистр: %d " % start_register)
 
     logger_events_list = list()
     logger_messages_list = list()

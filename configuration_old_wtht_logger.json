@@ -161,8 +161,56 @@
     }
   ],
   "ExternalClearAlarmsSignals": [],
-  "ExternalLoggers": [],
-  "ExternalLoggingMessages": [],
+  "ExternalLoggers": [
+    {
+      "Name": "Logger1",
+      "IsInitialized": false,
+      "IsUsing": false,
+      "ModuleIOName": "PlcEmul",
+      "FutureEntryRelayNumber": 40050,
+      "ExternalLoggerLines": [],
+      "ExternalLogger Lines": [
+        {
+          "TimeRelayNumber": 40052,
+          "EventRelayNumber": 10054,
+          "ArgRelayNuber": 10055
+        },
+        {
+          "TimeRelayNumber": 40056,
+          "EventRelayNumber": 10058,
+          "ArgRelayNuber": 10059
+        },
+        {
+          "TimeRelayNumber": 40060,
+          "EventRelayNumber": 10062,
+          "ArgRelayNuber": 10063
+        }
+      ]
+    }
+  ],
+  "ExternalLoggingMessages": [
+    {
+      "Name": "message1",
+      "IsEnabled": true,
+      "EventIndex": 1,
+      "LoggerName": "Logger1",
+      "MessageFormat": "test for message1 with argument = {0}"
+    },
+    {
+      "Name": "message2",
+      "IsEnabled": true,
+      "EventIndex": 2,
+      "LoggerName": "Logger1",
+      "MessageFormat": "test for message2 with argument = {0}"
+    },
+    {
+      "Name": "message3",
+      "IsEnabled": true,
+      "EventIndex": 3,
+      "LoggerName": "Logger1",
+      "MessageFormat": "test for message3 with argument = {0}"
+    }
+  ],
   "WorkModes": {
     "SelectedType": "TrekMark.Technology.Standard.SerializationOnUnwinding.Main",
     "WorkModeParameters": [
