@@ -16,6 +16,9 @@ logging.basicConfig(filename="./AddLogger.log", level=logging.INFO,
 
 app_logger = logging.getLogger()
 
+DEFAULT_EVENTS_QTY = 3
+DEFAULT_START_REGISTER = 40050
+
 
 class NoPlcNameException(Exception):
     pass
@@ -24,17 +27,18 @@ class NoPlcNameException(Exception):
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
+
+        # self._messages_quantity = None
         # self._messages_quantity = None
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.setAcceptDrops(True)
-        self.ui.lineStartRegiter.setText("40050")
-        self.ui.lineMessageQty.setText("3")
-        self.messages_quantity = int(self.ui.lineMessageQty.text())
-        self.start_register_field = int(self.ui.lineStartRegiter.text())
+        self.ui.lineMessageQty.setText(str(DEFAULT_EVENTS_QTY))
+        self.ui.lineStartRegiter.setText(str(DEFAULT_START_REGISTER))
+        # self.messages_quantity = DEFAULT_EVENTS_QTY
+        self.msg_qty = DEFAULT_START_REGISTER
+        self.start_register_field = DEFAULT_START_REGISTER
         self.another_value = 13
-
-
 
     @property
     def another_value(self):
@@ -45,12 +49,12 @@ class MainWindow(QMainWindow):
         self._another_value = value
 
     @property
-    def message_quantity(self):
-        return self._messages_quantity
+    def msg_qty(self):
+        return self._msg_qty
 
-    @message_quantity.setter
-    def message_quantity(self, value):
-        self._messages_quantity = value
+    @msg_qty.setter
+    def msg_qty(self, value):
+        self._msg_qty = value
 
     @property
     def start_register_field(self):
@@ -59,6 +63,7 @@ class MainWindow(QMainWindow):
     @start_register_field.setter
     def start_register_field(self, value):
         self._start_register_field = value
+
 
     def dragEnterEvent(self, event):
         mimetype = event.mimeData().hasText()
@@ -97,8 +102,9 @@ class MainWindow(QMainWindow):
                         app_logger.info("В файле конфигурации не обозначено имя ПЛК")
 
                     if plc_name != "":
-                        self.message_quantity = int(self.ui.lineMessageQty.text())
-
+                        # self.message_quantity = int(self.ui.lineMessageQty.text())
+                        self.msg_qty = int(self.ui.lineMessageQty.text())
+                        # self.message_quantity(self, int(self.ui.lineMessageQty.text()))
 
                         self.start_register_field = int(self.ui.lineStartRegiter.text())
                         app_logger.info("Событие дроп, новых сообщений: %d " % self.message_quantity)
