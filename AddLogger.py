@@ -34,15 +34,6 @@ class MainWindow(QMainWindow):
         self.ui.lineStartRegiter.setText(str(DEFAULT_START_REGISTER))
         self.msg_qty = DEFAULT_START_REGISTER
         self.start_register_field = DEFAULT_START_REGISTER
-        self.another_value = 13
-
-    @property
-    def another_value(self):
-        return self._another_value
-
-    @another_value.setter
-    def another_value(self, value):
-        self._another_value = value
 
     @property
     def msg_qty(self):
