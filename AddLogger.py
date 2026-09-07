@@ -27,15 +27,11 @@ class NoPlcNameException(Exception):
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
-
-        # self._messages_quantity = None
-        # self._messages_quantity = None
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.setAcceptDrops(True)
         self.ui.lineMessageQty.setText(str(DEFAULT_EVENTS_QTY))
         self.ui.lineStartRegiter.setText(str(DEFAULT_START_REGISTER))
-        # self.messages_quantity = DEFAULT_EVENTS_QTY
         self.msg_qty = DEFAULT_START_REGISTER
         self.start_register_field = DEFAULT_START_REGISTER
         self.another_value = 13
@@ -82,14 +78,15 @@ class MainWindow(QMainWindow):
 
     def dropEvent(self, event):
 
-        # Получаем список URL перетаскиваемых объектов
-        urls = event.mimeData().urls()
-        # проверки URL объекта
-        if len(urls) == 1 and urls[0].isLocalFile() and urls[0].toLocalFile().lower().endswith(".json"):
+        urls = event.mimeData().urls()  # Получаем список URL перетаскиваемых объектов
+        if (  # проверки URL объекта
+                len(urls) == 1
+                and urls[0].isLocalFile()
+                and urls[0].toLocalFile().lower().endswith(".json")
+        ):
             file_path = urls[0].toLocalFile()
 
-            # Открытие файла
-            with open(file_path, 'r', encoding='utf-8-sig') as opened_file:
+            with open(file_path, 'r', encoding='utf-8-sig') as opened_file:  # Открытие файла
                 try:
                     data = json.load(opened_file)
                     try:
