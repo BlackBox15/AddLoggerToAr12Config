@@ -52,6 +52,11 @@ class MainWindow(QMainWindow):
         self._start_register_field = value
 
     def dragEnterEvent(self, event):
+        """
+        Функция вызывается при "заносе" внутрь границ окна объекта
+        :param event:
+        :return:
+        """
         mimetype = event.mimeData().hasText()
         mimeData = event.mimeData()
 
@@ -68,7 +73,11 @@ class MainWindow(QMainWindow):
             event.acceptProposedAction()
 
     def dropEvent(self, event):
-
+        """
+        Функция вызывается при "сбросе" объекта внутри границ окна
+        :param event:
+        :return:
+        """
         urls = event.mimeData().urls()  # Получаем список URL перетаскиваемых объектов
         if (  # проверки URL объекта
                 len(urls) == 1
