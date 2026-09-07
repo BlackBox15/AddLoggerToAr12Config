@@ -64,7 +64,6 @@ class MainWindow(QMainWindow):
     def start_register_field(self, value):
         self._start_register_field = value
 
-
     def dragEnterEvent(self, event):
         mimetype = event.mimeData().hasText()
         mimeData = event.mimeData()
@@ -107,11 +106,11 @@ class MainWindow(QMainWindow):
                         # self.message_quantity(self, int(self.ui.lineMessageQty.text()))
 
                         self.start_register_field = int(self.ui.lineStartRegiter.text())
-                        app_logger.info("Событие дроп, новых сообщений: %d " % self.message_quantity)
+                        app_logger.info("Событие дроп, новых сообщений: %d " % self.msg_qty)
                         app_logger.info("Событие дроп, стартовый регистр: %d " % self.start_register_field)
 
                         new_config_dict = filling_new_config(data, plc_name, self.start_register_field,
-                                                             self.message_quantity)
+                                                             self._msg_qty)
 
                         # Запись файла
                         with open(file_path, 'w', encoding='utf-8-sig') as wrote_file:
