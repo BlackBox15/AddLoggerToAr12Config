@@ -41,7 +41,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>130</y>
+     <y>70</y>
      <width>106</width>
      <height>16</height>
     </rect>
@@ -59,6 +59,9 @@
      <height>26</height>
     </rect>
    </property>
+   <property name="focusPolicy">
+    <enum>Qt::FocusPolicy::TabFocus</enum>
+   </property>
    <property name="inputMethodHints">
     <set>Qt::InputMethodHint::ImhDigitsOnly</set>
    </property>
@@ -67,7 +70,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>100</y>
+     <y>130</y>
      <width>84</width>
      <height>16</height>
     </rect>
@@ -80,10 +83,13 @@
    <property name="geometry">
     <rect>
      <x>280</x>
-     <y>70</y>
+     <y>100</y>
      <width>171</width>
      <height>26</height>
     </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::FocusPolicy::TabFocus</enum>
    </property>
    <property name="inputMethodHints">
     <set>Qt::InputMethodHint::ImhDigitsOnly</set>
@@ -93,7 +99,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>70</y>
+     <y>100</y>
      <width>136</width>
      <height>16</height>
     </rect>
@@ -106,10 +112,13 @@
    <property name="geometry">
     <rect>
      <x>280</x>
-     <y>100</y>
+     <y>130</y>
      <width>171</width>
      <height>26</height>
     </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::FocusPolicy::TabFocus</enum>
    </property>
    <property name="inputMethodHints">
     <set>Qt::InputMethodHint::ImhDigitsOnly</set>
@@ -132,10 +141,13 @@
    <property name="geometry">
     <rect>
      <x>280</x>
-     <y>130</y>
+     <y>70</y>
      <width>171</width>
      <height>26</height>
     </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::FocusPolicy::TabFocus</enum>
    </property>
    <property name="inputMethodHints">
     <set>Qt::InputMethodHint::ImhDigitsOnly</set>
@@ -151,6 +163,12 @@
   <zorder>lblPortValue</zorder>
   <zorder>lineStartRegister</zorder>
  </widget>
+ <tabstops>
+  <tabstop>lineStartRegister</tabstop>
+  <tabstop>lineMessageQty</tabstop>
+  <tabstop>lineBufferLength</tabstop>
+  <tabstop>linePortValue</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
