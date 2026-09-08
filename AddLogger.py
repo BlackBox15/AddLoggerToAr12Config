@@ -8,7 +8,7 @@ from json import JSONDecodeError
 
 from PySide6.QtWidgets import QApplication, QMainWindow
 
-from ui_mainwindow3 import Ui_MainWindow
+from ui_mainwindow3_1 import Ui_MainWindow
 
 logging.basicConfig(filename="./AddLogger.log", level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -16,7 +16,9 @@ logging.basicConfig(filename="./AddLogger.log", level=logging.INFO,
 
 app_logger = logging.getLogger()
 
-DEFAULT_EVENTS_QTY = 3
+DEFAULT_PORT = 505
+DEFAULT_EVENTS_QTY = 10
+DEFAULT_BUFFER_LENGTH = 10
 DEFAULT_START_REGISTER = 40050
 
 
@@ -30,10 +32,33 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.setAcceptDrops(True)
+        self.ui.linePortValue.setText(str(DEFAULT_PORT))
         self.ui.lineMessageQty.setText(str(DEFAULT_EVENTS_QTY))
-        self.ui.lineStartRegiter.setText(str(DEFAULT_START_REGISTER))
+        self.ui.lineBufferLength.setText(str(DEFAULT_BUFFER_LENGTH))
+        self.ui.lineStartRegister.setText(str(DEFAULT_START_REGISTER))
+        self.port_value = DEFAULT_PORT
         self.msg_qty = DEFAULT_START_REGISTER
+        self.buffer_length = DEFAULT_BUFFER_LENGTH
         self.start_register_field = DEFAULT_START_REGISTER
+
+    @property
+    def port_value(self):
+        return self._port_value
+
+    @port_value.setter
+    def port_value(self, value):
+        if 0 <= value <= 65535:
+            self._port_value = value
+
+
+    @property
+    def buffer_length(self):
+        return self._buffer_length
+
+    @buffer_length.setter
+    def buffer_length(self, value):
+        if value > 0:
+            self._buffer_length = value
 
     @property
     def msg_qty(self):
@@ -84,42 +109,47 @@ class MainWindow(QMainWindow):
                 and urls[0].isLocalFile()
                 and urls[0].toLocalFile().lower().endswith(".json")
         ):
-            file_path = urls[0].toLocalFile()
+            f_path = urls[0].toLocalFile()
+            json_data = None
 
-            with open(file_path, 'r', encoding='utf-8-sig') as opened_file:  # Открытие файла
+            with open(f_path, 'r', encoding='utf-8-sig') as opened_file:  # Открытие файла, utf-8-sig -- игнорирует наличие BOM в JSON-файле
                 try:
                     data = json.load(opened_file)
-                    try:
-                        plc_name = get_plc_name(data)
-                    #     todo: сделать проверку доступности 503-го порта, создать 503-й порт в конфигурации
-                    except NoPlcNameException:
-                        plc_name = ""
-                        self.ui.lblStatusText.setText("В файле конфигурации не обозначено имя ПЛК")
-                        app_logger.info("В файле конфигурации не обозначено имя ПЛК")
-
-                    if plc_name != "":
-                        # self.message_quantity = int(self.ui.lineMessageQty.text())
-                        self.msg_qty = int(self.ui.lineMessageQty.text())
-                        # self.message_quantity(self, int(self.ui.lineMessageQty.text()))
-
-                        self.start_register_field = int(self.ui.lineStartRegiter.text())
-                        app_logger.info("Событие дроп, новых сообщений: %d " % self.msg_qty)
-                        app_logger.info("Событие дроп, стартовый регистр: %d " % self.start_register_field)
-
-                        new_config_dict = filling_new_config(data, plc_name, self.start_register_field,
-                                                             self._msg_qty)
-
-                        # Запись файла
-                        with open(file_path, 'w', encoding='utf-8-sig') as wrote_file:
-                            json.dump(new_config_dict, wrote_file, indent=2, ensure_ascii=False)
-                            self.ui.lblStatusText.setText("Конфиг обновлён")
-                            # QMessageBox.information(self, "Заголовок", "Конфиг обновлён")
+                    json_data = json.load(opened_file)
                 except JSONDecodeError:
                     app_logger.error("Ошибка при чтении/парсинге JSON")
                     self.ui.lblStatusText.setText(f"Ошибка при чтении/парсинге JSON")
                 except UnicodeDecodeError:
                     app_logger.error("Ошибка по Unicode")
                     self.ui.lblStatusText.setText(f"Ошибка по Unicode")
+
+            try:
+                plc_name = get_plc_name(data)
+                # todo: сделать проверку доступности 505-го порта, создать 505-й порт в конфигурации
+            except NoPlcNameException:
+                plc_name = ""
+                self.ui.lblStatusText.setText("В файле конфигурации не обозначено имя ПЛК")
+                app_logger.info("В файле конфигурации не обозначено имя ПЛК")
+
+            if plc_name != "":
+                # self.message_quantity = int(self.ui.lineMessageQty.text())
+                self.msg_qty = int(self.ui.lineMessageQty.text())
+                # self.message_quantity(self, int(self.ui.lineMessageQty.text()))
+
+                self.start_register_field = int(self.ui.lineStartRegiter.text())
+                app_logger.info("Событие дроп, новых сообщений: %d " % self.msg_qty)
+                app_logger.info("Событие дроп, стартовый регистр: %d " % self.start_register_field)
+
+                new_config_dict = filling_new_config(
+                    data, plc_name,
+                    self.start_register_field,
+                    self._msg_qty)
+
+                # Запись файла
+                with open(f_path, 'w', encoding='utf-8-sig') as wrote_file:
+                    json.dump(new_config_dict, wrote_file, indent=2, ensure_ascii=False)
+                    self.ui.lblStatusText.setText("Конфиг обновлён")
+                    # QMessageBox.information(self, "Заголовок", "Конфиг обновлён")
         else:
             self.ui.lblStatusText.setText("Неподходящий тип файла")
 

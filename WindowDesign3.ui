@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>500</width>
-    <height>200</height>
+    <width>513</width>
+    <height>267</height>
    </rect>
   </property>
   <property name="acceptDrops">
@@ -20,13 +20,18 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>120</y>
+     <y>180</y>
      <width>471</width>
      <height>71</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <italic>true</italic>
+    </font>
+   </property>
    <property name="text">
-    <string>Перетащите сюда configuration.json</string>
+    <string>-&gt; Перетащите сюда configuration.json</string>
    </property>
    <property name="wordWrap">
     <bool>true</bool>
@@ -35,43 +40,17 @@
   <widget class="QLabel" name="lblStartRegister">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>90</y>
-     <width>241</width>
+     <x>10</x>
+     <y>130</y>
+     <width>106</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>Стартовый регистр структуры сообщений</string>
+    <string>Стартовый регистр</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineStartRegiter">
-   <property name="geometry">
-    <rect>
-     <x>280</x>
-     <y>80</y>
-     <width>171</width>
-     <height>26</height>
-    </rect>
-   </property>
-   <property name="inputMethodHints">
-    <set>Qt::InputMethodHint::ImhDigitsOnly</set>
-   </property>
-  </widget>
-  <widget class="QLabel" name="lblMessageQty">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>50</y>
-     <width>201</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Количество сообщений в логгере</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="lineMessageQty">
+  <widget class="QLineEdit" name="linePortValue">
    <property name="geometry">
     <rect>
      <x>280</x>
@@ -84,11 +63,93 @@
     <set>Qt::InputMethodHint::ImhDigitsOnly</set>
    </property>
   </widget>
+  <widget class="QLabel" name="lblBufferLength">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>100</y>
+     <width>84</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Размер буфера</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineMessageQty">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>70</y>
+     <width>171</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="inputMethodHints">
+    <set>Qt::InputMethodHint::ImhDigitsOnly</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblMessagesQuantity">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>70</y>
+     <width>136</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Количество  сообщений</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineBufferLength">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>100</y>
+     <width>171</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="inputMethodHints">
+    <set>Qt::InputMethodHint::ImhDigitsOnly</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblPortValue">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>40</y>
+     <width>74</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Порт логгера</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineStartRegister">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>130</y>
+     <width>171</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="inputMethodHints">
+    <set>Qt::InputMethodHint::ImhDigitsOnly</set>
+   </property>
+  </widget>
   <zorder>lblStatusText</zorder>
-  <zorder>lblMessageQty</zorder>
+  <zorder>lblBufferLength</zorder>
   <zorder>lblStartRegister</zorder>
   <zorder>lineMessageQty</zorder>
-  <zorder>lineStartRegiter</zorder>
+  <zorder>linePortValue</zorder>
+  <zorder>lblMessagesQuantity</zorder>
+  <zorder>lineBufferLength</zorder>
+  <zorder>lblPortValue</zorder>
+  <zorder>lineStartRegister</zorder>
  </widget>
  <resources/>
  <connections/>
