@@ -29,7 +29,11 @@ CURRENT_VERSION_FOR_WINDOW_TITLE = 0.4
 class NoPlcNameException(Exception):
     pass
 
-
+# todo: переименовать переменные, чтобы не было разночтений:
+#  на Арке существуют понятия Lines и Messages,
+#  где Lines -- это записи из очереди сообщений на ПЛК,
+#  а Messages - это текстовые описания регистрируемых событий,
+#  таким образом имеется количественное условие: размер очереди сообщений >= количеству описаний
 class MainWindow(QMainWindow):
     _user_input_errors = {'ip_address_incorrect': '', 'port_incorrect': '', 'start_register_incorrect': '',
                           'message_qty_incorrect': '', 'buffer_length_incorrect': '', 'json': '', 'plc_name': ''}
@@ -383,6 +387,11 @@ def get_plc_name(config_dict: dict) -> str:
     else:
         raise NoPlcNameException(plc_name)
     return plc_name
+
+# todo: добавить параметр buffer length,
+#  и сделать сборку 2 списков в разных циклах, поскольку,
+#  в общем случае,
+#  длина буфера >= количеству регистрируемых событий на ПЛК
 
 
 def filling_new_config(config_dict: dict, plc_name: str, start_register: int, messages_qty: int) -> dict:
