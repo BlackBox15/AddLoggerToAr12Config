@@ -4,7 +4,9 @@
 import json
 import logging
 import sys
+from ipaddress import ip_address, IPv4Address
 from json import JSONDecodeError
+from wsgiref.validate import check_status
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
 
@@ -16,11 +18,12 @@ logging.basicConfig(filename="./AddLogger.log", level=logging.INFO,
 
 app_logger = logging.getLogger()
 
+DEFAULT_IP_ADDRESS = '192.168.0.10'
 DEFAULT_PORT = 505
+DEFAULT_START_REGISTER = 40000
 DEFAULT_EVENTS_QTY = 10
 DEFAULT_BUFFER_LENGTH = 10
-DEFAULT_START_REGISTER = 40050
-CURRENT_VERSION_FOR_WINDOW_TITLE = 0.1
+CURRENT_VERSION_FOR_WINDOW_TITLE = 0.3
 
 
 class NoPlcNameException(Exception):
@@ -28,7 +31,12 @@ class NoPlcNameException(Exception):
 
 
 class MainWindow(QMainWindow):
+    _user_input_errors = {'ip_address_incorrect': '', 'port_incorrect': '', 'start_register_incorrect': '',
+                          'message_qty_incorrect': '', 'buffer_length_incorrect': '', 'json': '', 'plc_name': ''}
+    _default_status_text = "-> Перетащите сюда configuration.json"
+
     def __init__(self):
+
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -36,20 +44,96 @@ class MainWindow(QMainWindow):
         window_title = self.windowTitle()
         self.setWindowTitle(window_title + ' ' + str(CURRENT_VERSION_FOR_WINDOW_TITLE))
         # edit text default values
+        self.ui.linePlcIpAddress.setText(DEFAULT_IP_ADDRESS)
+        self.ui.linePlcIpAddress.editingFinished.connect(self.ip_check)
         self.ui.linePortValue.setText(str(DEFAULT_PORT))
+        self.ui.linePortValue.editingFinished.connect(self.port_check)
         self.ui.lineMessageQty.setText(str(DEFAULT_EVENTS_QTY))
         self.ui.lineBufferLength.setText(str(DEFAULT_BUFFER_LENGTH))
         self.ui.lineStartRegister.setText(str(DEFAULT_START_REGISTER))
         # fields
+        self.ip_address = DEFAULT_IP_ADDRESS
         self.port_value = DEFAULT_PORT
         self.msg_qty = DEFAULT_START_REGISTER
         self.buffer_length = DEFAULT_BUFFER_LENGTH
         self.start_register_field = DEFAULT_START_REGISTER
 
-    # ===================
-    #   port value
-    #   getter, setter
-    # ===================
+    @property
+    def check_err(self):
+        return any(self._user_input_errors.values())
+
+    @property
+    def all_err(self):
+        return self._user_input_errors.values()
+
+    @property
+    def plc_err(self):
+        return self._user_input_errors['plc_name']
+
+    @plc_err.setter
+    def plc_err(self, value: str):
+        self._user_input_errors['plc_name'] = value
+
+    @property
+    def json_err(self):
+        return self._user_input_errors['json']
+
+    @json_err.setter
+    def json_err(self, value: str):
+        self._user_input_errors['json'] = value
+
+    @property
+    def ip_error(self) -> str:
+        return self._user_input_errors['ip_address_incorrect']
+
+    @ip_error.setter
+    def ip_error(self, value: str):
+        self._user_input_errors['ip_address_incorrect'] = value
+
+    @property
+    def port_error(self) -> str:
+        return self._user_input_errors['port_incorrect']
+
+    @port_error.setter
+    def port_error(self, value: str):
+        self._user_input_errors['port_incorrect'] = value
+
+    @property
+    def register_error(self) -> str:
+        return self._user_input_errors['start_register_incorrect']
+
+    @register_error.setter
+    def register_error(self, value: str):
+        self._user_input_errors['start_register_incorrect'] = value
+
+    @property
+    def messages_error(self) -> str:
+        return self._user_input_errors['message_qty_incorrect']
+
+    @messages_error.setter
+    def messages_error(self, value: str):
+        self._user_input_errors['message_qty_incorrect'] = value
+
+    @property
+    def buffer_error(self) -> str:
+        return self._user_input_errors['buffer_length_incorrect']
+
+    @buffer_error.setter
+    def buffer_error(self, value: str):
+        self._user_input_errors['buffer_length_incorrect'] = value
+
+    @property
+    def get_def_status(self):
+        return self._default_status_text
+
+    @property
+    def ip_address(self):
+        return self._ip_address
+
+    @ip_address.setter
+    def ip_address(self, value):
+        self._ip_address = value
+
     @property
     def port_value(self):
         return self._port_value
@@ -59,10 +143,6 @@ class MainWindow(QMainWindow):
         if 0 <= value <= 65535:
             self._port_value = value
 
-    # ===================
-    #   buffer length
-    #   getter, setter
-    # ===================
     @property
     def buffer_length(self):
         return self._buffer_length
@@ -87,6 +167,53 @@ class MainWindow(QMainWindow):
     @start_register_field.setter
     def start_register_field(self, value):
         self._start_register_field = value
+
+    def ip_check(self):
+        """
+        Проверка корректности информации на соответствие формату IP-адреса
+        :return:
+        """
+        new_ip_address = self.ui.linePlcIpAddress.text().strip()
+
+        try:
+            ip = ip_address(new_ip_address)
+            if not isinstance(ip, IPv4Address):
+                raise ValueError
+            else:
+                self.ip_address = new_ip_address
+                self.ip_error = ''
+                app_logger.info("IP адрес обновлён: " + new_ip_address)
+        except ValueError:
+            self.ip_error = "Некорректный IP адрес"
+            app_logger.error("Некорректный IP адрес")
+        finally:
+            self.ui.lblStatusText.setText(self.status_check())
+
+    def port_check(self):
+        """
+        Проверка значения порта в поле ввода
+        :return:
+        """
+        new_port = self.ui.linePortValue.text().strip()
+
+        if new_port.isdigit() and (0 <= int(new_port) <= 65535):
+            self.port_value = int(new_port)
+            self.port_error = ''
+            app_logger.info("Порт обновлён: " + new_port)
+        else:
+            self.port_error = "Некорректный порт"
+            app_logger.error("Некорректный порт")
+
+        self.ui.lblStatusText.setText(self.status_check())
+
+    def status_check(self) -> str:
+        for value in self.all_err:
+            if value != '':
+                self.setAcceptDrops(False)
+                return value
+        else:
+            self.setAcceptDrops(True)
+            return self.get_def_status
 
     # ===================
     #   проверка пути файла
@@ -134,18 +261,19 @@ class MainWindow(QMainWindow):
                 try:
                     json_data = json.load(opened_file)
                 except JSONDecodeError:
+                    self.ui.lblStatusText.setText(
+                        self.ui.lblStatusText.text() + ' ' + "Ошибка при чтении/парсинге JSON")
                     app_logger.error("Ошибка при чтении/парсинге JSON")
-                    self.ui.lblStatusText.setText(f"Ошибка при чтении/парсинге JSON")
                 except UnicodeDecodeError:
+                    self.ui.lblStatusText.setText(self.ui.lblStatusText.text() + ' ' + "Ошибка по Unicode")
                     app_logger.error("Ошибка по Unicode")
-                    self.ui.lblStatusText.setText(f"Ошибка по Unicode")
 
             try:
                 plc_name = get_plc_name(json_data)
                 # todo: сделать проверку доступности 505-го порта, создать 505-й порт в конфигурации
             except NoPlcNameException:
                 plc_name = ""
-                self.ui.lblStatusText.setText("В файле конфигурации не обозначено имя ПЛК")
+                self.ui.lblStatusText.setText(self.ui.lblStatusText.text() + ' ' + "В файле конфигурации не обозначено имя ПЛК")
                 app_logger.info("В файле конфигурации не обозначено имя ПЛК")
 
             if plc_name != "":
@@ -186,9 +314,53 @@ class MainWindow(QMainWindow):
                         QMessageBox.critical(self, "Ошибка записи", f"Не удалось сохранить:\n{str(e)}")
         else:
             QMessageBox.information(self, "Предупреждение", f"Неподходящий тип файла!")
-            self.ui.lblStatusText.setText("Неподходящий тип файла")
 
         event.acceptProposedAction()
+
+
+def put_new_plc_module(config_dict: dict, port: int) -> dict:
+    """
+    Добавление нового модуля ПЛК в JSON-конфигурацию
+    :param config_dict: Словарь с JSON-конфигурацей
+    :param port: Используемый порт для нового модуля ПЛК
+    :return: Обновлённый словарь с JSON-конфигурацией
+    """
+    plc_name = "Logger_plc_module"
+    new_plc_module_configuration = """
+    {
+      "Type": "TrekMark.Drivers.Boards.ModbusMaster.ModbusMaster",
+      "IsInitialized": true,
+      "Name": "Logger_plc",
+      "SignalActivationDelay": 0,
+      "SignalDeactivationDelay": 0,
+      "Parameters": [
+        {
+          "Name": "Адрес Modbus Client",
+          "Value": "192.168.0.12"
+        },
+        {
+          "Name": "Сетевой порт Modbus Client",
+          "Value": 505
+        },
+        {
+          "Name": "Время ожидания сообщений",
+          "Value": 0
+        },
+        {
+          "Name": "Использование TCP Keepalive",
+          "Value": false
+        },
+        {
+          "Name": "Период опроса регистров",
+          "Value": 100
+        }
+      ],
+      "AddressesToRead": [],
+      "AddressesToWrite": [],
+      "IsUsing": true
+    }
+    """
+    pass
 
 
 def get_plc_name(config_dict: dict) -> str:
