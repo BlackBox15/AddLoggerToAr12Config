@@ -290,10 +290,10 @@ class MainWindow(QMainWindow):
                 app_logger.info("В файле конфигурации не обозначено имя ПЛК")
 
             if plc_name != "":
-                # self.msg_qty = int(self.ui.lineMessageQty.text())
-                self.msg_qty = self.ui.spinMessages.value()
-                # self.start_register_field = int(self.ui.lineStartRegister.text())
                 self.start_register_field = self.ui.spinRegister.value()
+                self.buffer_length = self.ui.spinBuffer.value()
+                self.msg_qty = self.ui.spinMessages.value()
+
                 app_logger.info("Событие дроп, новых сообщений: %d " % self.msg_qty)
                 app_logger.info("Событие дроп, стартовый регистр: %d " % self.start_register_field)
 
