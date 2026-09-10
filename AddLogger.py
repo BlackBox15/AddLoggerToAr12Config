@@ -215,9 +215,6 @@ class MainWindow(QMainWindow):
             self.setAcceptDrops(True)
             return self.get_def_status
 
-    # ===================
-    #   проверка пути файла
-    # ===================
     def dragEnterEvent(self, event):
         """
         Функция вызывается при "заносе" внутрь границ окна объекта
@@ -239,7 +236,6 @@ class MainWindow(QMainWindow):
         if mimetype:
             event.acceptProposedAction()
 
-    #   выполнение логики при "сбросе"
     def dropEvent(self, event):
         """
         Функция вызывается при "сбросе" объекта внутри границ окна
@@ -249,11 +245,10 @@ class MainWindow(QMainWindow):
         json_data: dict
         urls = event.mimeData().urls()  # Получаем список URL перетаскиваемых объектов
 
-        if (  # проверки URL объекта
-                len(urls) == 1
+        if (len(urls) == 1
                 and urls[0].isLocalFile()
-                and urls[0].toLocalFile().lower().endswith(".json")
-        ):
+                and urls[0].toLocalFile().lower().endswith(".json")):
+
             dropped_file_path = urls[0].toLocalFile()
 
             with open(dropped_file_path, 'r',
@@ -273,7 +268,8 @@ class MainWindow(QMainWindow):
                 # todo: сделать проверку доступности 505-го порта, создать 505-й порт в конфигурации
             except NoPlcNameException:
                 plc_name = ""
-                self.ui.lblStatusText.setText(self.ui.lblStatusText.text() + ' ' + "В файле конфигурации не обозначено имя ПЛК")
+                self.ui.lblStatusText.setText(
+                    self.ui.lblStatusText.text() + ' ' + "В файле конфигурации не обозначено имя ПЛК")
                 app_logger.info("В файле конфигурации не обозначено имя ПЛК")
 
             if plc_name != "":
@@ -289,11 +285,6 @@ class MainWindow(QMainWindow):
                     json_data, plc_name,
                     self.start_register_field,
                     self._msg_qty)
-
-                # options = QFileDialog.options()
-                # options |= QFileDialog.Option.DontUseNativeDialog  # необязательно, для единообразия
-                # # Убедимся, что флаг DontConfirmOverwrite выключен:
-                # options &= ~QFileDialog.Option.DontConfirmOverwrite
 
                 target_path, _ = QFileDialog.getSaveFileName(
                     self,
