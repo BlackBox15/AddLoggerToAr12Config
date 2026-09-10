@@ -65,18 +65,21 @@
    <property name="inputMethodHints">
     <set>Qt::InputMethodHint::ImhDigitsOnly</set>
    </property>
+   <property name="placeholderText">
+    <string>505</string>
+   </property>
   </widget>
   <widget class="QLabel" name="lblBufferLength">
    <property name="geometry">
     <rect>
      <x>20</x>
      <y>140</y>
-     <width>84</width>
+     <width>132</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>Размер буфера</string>
+    <string>Размер очереди на ПЛК</string>
    </property>
   </widget>
   <widget class="QLabel" name="lblMessagesQuantity">
@@ -84,12 +87,12 @@
     <rect>
      <x>20</x>
      <y>170</y>
-     <width>136</width>
+     <width>183</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>Количество  сообщений</string>
+    <string>Количество возможных событий</string>
    </property>
   </widget>
   <widget class="QLabel" name="lblPortValue">
@@ -138,6 +141,9 @@
    </property>
    <property name="inputMethodHints">
     <set>Qt::InputMethodHint::ImhDigitsOnly</set>
+   </property>
+   <property name="placeholderText">
+    <string>192.168.0.10</string>
    </property>
   </widget>
   <widget class="QLabel" name="lblPlcIpInfo">
@@ -210,7 +216,7 @@
     </rect>
    </property>
    <property name="toolTip">
-    <string>Количество событий, регистрируемых логом</string>
+    <string>Размер ретроспективной очереди сообщений на ПЛК</string>
    </property>
    <property name="text">
     <string/>
@@ -229,7 +235,7 @@
     </rect>
    </property>
    <property name="toolTip">
-    <string>Количество сообщений, хранимых в массиве лога</string>
+    <string>Количество возможных событий, регистрируемых ПЛК</string>
    </property>
    <property name="text">
     <string/>

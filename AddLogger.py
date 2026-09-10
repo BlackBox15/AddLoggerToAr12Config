@@ -6,7 +6,6 @@ import logging
 import sys
 from ipaddress import ip_address, IPv4Address
 from json import JSONDecodeError
-from wsgiref.validate import check_status
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
 
@@ -36,7 +35,7 @@ class NoPlcNameException(Exception):
 #  таким образом имеется количественное условие: размер очереди сообщений >= количеству описаний
 class MainWindow(QMainWindow):
     _user_input_errors = {'ip_address_incorrect': '', 'port_incorrect': '', 'start_register_incorrect': '',
-                          'message_qty_incorrect': '', 'buffer_length_incorrect': '', 'json': '', 'plc_name': ''}
+                          'message_qty_incorrect': '', 'buffer_length_incorrect': ''}
     _default_status_text = "-> Перетащите сюда configuration.json"
 
     def __init__(self):
@@ -185,9 +184,15 @@ class MainWindow(QMainWindow):
 
     def on_messages_changed(self, value: int):
         self.msg_qty = value
+        if self.buffer_length < self.msg_qty:
+            self.buffer_length = self.msg_qty
+            self.ui.spinBuffer.setValue(self.buffer_length)
 
     def on_buffer_changed(self, value: int):
         self.buffer_length = value
+        if self.msg_qty > self.buffer_length:
+            self.msg_qty = self.buffer_length
+            self.ui.spinMessages.setValue(self.msg_qty)
 
     def ip_check(self):
         """
