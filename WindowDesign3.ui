@@ -79,22 +79,6 @@
     <string>Размер буфера</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineMessageQty">
-   <property name="geometry">
-    <rect>
-     <x>280</x>
-     <y>170</y>
-     <width>171</width>
-     <height>26</height>
-    </rect>
-   </property>
-   <property name="focusPolicy">
-    <enum>Qt::FocusPolicy::StrongFocus</enum>
-   </property>
-   <property name="inputMethodHints">
-    <set>Qt::InputMethodHint::ImhDigitsOnly</set>
-   </property>
-  </widget>
   <widget class="QLabel" name="lblMessagesQuantity">
    <property name="geometry">
     <rect>
@@ -108,22 +92,6 @@
     <string>Количество  сообщений</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineBufferLength">
-   <property name="geometry">
-    <rect>
-     <x>280</x>
-     <y>140</y>
-     <width>171</width>
-     <height>26</height>
-    </rect>
-   </property>
-   <property name="focusPolicy">
-    <enum>Qt::FocusPolicy::StrongFocus</enum>
-   </property>
-   <property name="inputMethodHints">
-    <set>Qt::InputMethodHint::ImhDigitsOnly</set>
-   </property>
-  </widget>
   <widget class="QLabel" name="lblPortValue">
    <property name="geometry">
     <rect>
@@ -135,22 +103,6 @@
    </property>
    <property name="text">
     <string>Порт логгера</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="lineStartRegister">
-   <property name="geometry">
-    <rect>
-     <x>280</x>
-     <y>110</y>
-     <width>171</width>
-     <height>26</height>
-    </rect>
-   </property>
-   <property name="focusPolicy">
-    <enum>Qt::FocusPolicy::StrongFocus</enum>
-   </property>
-   <property name="inputMethodHints">
-    <set>Qt::InputMethodHint::ImhDigitsOnly</set>
    </property>
   </widget>
   <widget class="QLabel" name="lblPlcIpAddress">
@@ -178,28 +130,191 @@
    <property name="focusPolicy">
     <enum>Qt::FocusPolicy::StrongFocus</enum>
    </property>
+   <property name="toolTip">
+    <string/>
+   </property>
+   <property name="toolTipDuration">
+    <number>-1</number>
+   </property>
    <property name="inputMethodHints">
     <set>Qt::InputMethodHint::ImhDigitsOnly</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblPlcIpInfo">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>50</y>
+     <width>24</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>IP адрес ПЛК, на котором реализовано логирование</string>
+   </property>
+   <property name="toolTipDuration">
+    <number>-1</number>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="pixmap">
+    <pixmap>info-outline.svg</pixmap>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblPortInfo">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>80</y>
+     <width>24</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Порт Modbus Slave ПЛК, на котором реализовано логирование</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="pixmap">
+    <pixmap>info-outline.svg</pixmap>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblRegisterInfo">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>110</y>
+     <width>24</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Номер регистра ПЛК, в котором располагается индекс лога</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="pixmap">
+    <pixmap>info-outline.svg</pixmap>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblBufferInfo">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>140</y>
+     <width>24</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Количество событий, регистрируемых логом</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="pixmap">
+    <pixmap>info-outline.svg</pixmap>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblMessagesInfo">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>170</y>
+     <width>24</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Количество сообщений, хранимых в массиве лога</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="pixmap">
+    <pixmap>info-outline.svg</pixmap>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="spinRegister">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>110</y>
+     <width>121</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="minimum">
+    <number>40000</number>
+   </property>
+   <property name="maximum">
+    <number>100000</number>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="spinBuffer">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>140</y>
+     <width>121</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="minimum">
+    <number>1</number>
+   </property>
+   <property name="maximum">
+    <number>99</number>
+   </property>
+   <property name="value">
+    <number>10</number>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="spinMessages">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>170</y>
+     <width>121</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="minimum">
+    <number>1</number>
+   </property>
+   <property name="maximum">
+    <number>99</number>
+   </property>
+   <property name="value">
+    <number>10</number>
    </property>
   </widget>
   <zorder>lblStatusText</zorder>
   <zorder>lblBufferLength</zorder>
   <zorder>lblStartRegister</zorder>
-  <zorder>lineMessageQty</zorder>
   <zorder>linePortValue</zorder>
   <zorder>lblMessagesQuantity</zorder>
-  <zorder>lineBufferLength</zorder>
   <zorder>lblPortValue</zorder>
-  <zorder>lineStartRegister</zorder>
   <zorder>lblPlcIpAddress</zorder>
   <zorder>linePlcIpAddress</zorder>
+  <zorder>lblPlcIpInfo</zorder>
+  <zorder>lblPortInfo</zorder>
+  <zorder>lblRegisterInfo</zorder>
+  <zorder>lblBufferInfo</zorder>
+  <zorder>lblMessagesInfo</zorder>
+  <zorder>spinRegister</zorder>
+  <zorder>spinBuffer</zorder>
+  <zorder>spinMessages</zorder>
  </widget>
  <tabstops>
-  <tabstop>lineStartRegister</tabstop>
-  <tabstop>lineBufferLength</tabstop>
-  <tabstop>lineMessageQty</tabstop>
+  <tabstop>spinBuffer</tabstop>
+  <tabstop>spinMessages</tabstop>
   <tabstop>linePlcIpAddress</tabstop>
   <tabstop>linePortValue</tabstop>
+  <tabstop>spinRegister</tabstop>
  </tabstops>
  <resources/>
  <connections/>

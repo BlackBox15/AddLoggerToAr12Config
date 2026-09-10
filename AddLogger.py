@@ -23,7 +23,7 @@ DEFAULT_PORT = 505
 DEFAULT_START_REGISTER = 40000
 DEFAULT_EVENTS_QTY = 10
 DEFAULT_BUFFER_LENGTH = 10
-CURRENT_VERSION_FOR_WINDOW_TITLE = 0.3
+CURRENT_VERSION_FOR_WINDOW_TITLE = 0.4
 
 
 class NoPlcNameException(Exception):
@@ -43,14 +43,18 @@ class MainWindow(QMainWindow):
         self.setAcceptDrops(True)
         window_title = self.windowTitle()
         self.setWindowTitle(window_title + ' ' + str(CURRENT_VERSION_FOR_WINDOW_TITLE))
+
         # edit text default values
         self.ui.linePlcIpAddress.setText(DEFAULT_IP_ADDRESS)
         self.ui.linePlcIpAddress.editingFinished.connect(self.ip_check)
         self.ui.linePortValue.setText(str(DEFAULT_PORT))
         self.ui.linePortValue.editingFinished.connect(self.port_check)
-        self.ui.lineMessageQty.setText(str(DEFAULT_EVENTS_QTY))
-        self.ui.lineBufferLength.setText(str(DEFAULT_BUFFER_LENGTH))
-        self.ui.lineStartRegister.setText(str(DEFAULT_START_REGISTER))
+
+        # spinBoxes
+        self.ui.spinRegister.valueChanged.connect(self.on_register_changed)
+        self.ui.spinMessages.valueChanged.connect(self.on_messages_changed)
+        self.ui.spinBuffer.valueChanged.connect(self.on_buffer_changed)
+
         # fields
         self.ip_address = DEFAULT_IP_ADDRESS
         self.port_value = DEFAULT_PORT
@@ -158,7 +162,11 @@ class MainWindow(QMainWindow):
 
     @msg_qty.setter
     def msg_qty(self, value):
-        self._msg_qty = value
+        if value > 0:
+            self._msg_qty = value
+        else:
+            self.messages_error = "Отрицательное значение"
+            self.status_check()
 
     @property
     def start_register_field(self):
@@ -167,6 +175,15 @@ class MainWindow(QMainWindow):
     @start_register_field.setter
     def start_register_field(self, value):
         self._start_register_field = value
+
+    def on_register_changed(self, value: int):
+        self.start_register_field = value
+
+    def on_messages_changed(self, value: int):
+        self.msg_qty = value
+
+    def on_buffer_changed(self, value: int):
+        self.buffer_length = value
 
     def ip_check(self):
         """
@@ -251,13 +268,14 @@ class MainWindow(QMainWindow):
 
             dropped_file_path = urls[0].toLocalFile()
 
-            with open(dropped_file_path, 'r',
-                      encoding='utf-8-sig') as opened_file:  # Открытие файла, utf-8-sig -- игнорирует наличие BOM в JSON-файле
+            # Открытие файла,
+            # utf-8-sig -- игнорирует наличие возможной области BOM в JSON-файле
+            # (размещение BOM запрещено стандартом RFC)
+            with open(dropped_file_path, 'r', encoding='utf-8-sig') as opened_file:
                 try:
                     json_data = json.load(opened_file)
                 except JSONDecodeError:
-                    self.ui.lblStatusText.setText(
-                        self.ui.lblStatusText.text() + ' ' + "Ошибка при чтении/парсинге JSON")
+                    self.ui.lblStatusText.setText(self.ui.lblStatusText.text() + ' ' + "Ошибка при чтении/парсинге JSON")
                     app_logger.error("Ошибка при чтении/парсинге JSON")
                 except UnicodeDecodeError:
                     self.ui.lblStatusText.setText(self.ui.lblStatusText.text() + ' ' + "Ошибка по Unicode")
@@ -268,16 +286,14 @@ class MainWindow(QMainWindow):
                 # todo: сделать проверку доступности 505-го порта, создать 505-й порт в конфигурации
             except NoPlcNameException:
                 plc_name = ""
-                self.ui.lblStatusText.setText(
-                    self.ui.lblStatusText.text() + ' ' + "В файле конфигурации не обозначено имя ПЛК")
+                self.ui.lblStatusText.setText(self.ui.lblStatusText.text() + ' ' + "В файле конфигурации не обозначено имя ПЛК")
                 app_logger.info("В файле конфигурации не обозначено имя ПЛК")
 
             if plc_name != "":
-                # self.message_quantity = int(self.ui.lineMessageQty.text())
-                self.msg_qty = int(self.ui.lineMessageQty.text())
-                # self.message_quantity(self, int(self.ui.lineMessageQty.text()))
-
-                self.start_register_field = int(self.ui.lineStartRegister.text())
+                # self.msg_qty = int(self.ui.lineMessageQty.text())
+                self.msg_qty = self.ui.spinMessages.value()
+                # self.start_register_field = int(self.ui.lineStartRegister.text())
+                self.start_register_field = self.ui.spinRegister.value()
                 app_logger.info("Событие дроп, новых сообщений: %d " % self.msg_qty)
                 app_logger.info("Событие дроп, стартовый регистр: %d " % self.start_register_field)
 
