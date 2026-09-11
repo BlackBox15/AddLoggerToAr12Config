@@ -28,12 +28,7 @@ CURRENT_VERSION_FOR_WINDOW_TITLE = 0.5
 class NoPlcNameException(Exception):
     pass
 
-# todo: переименовать переменные, чтобы не было разночтений:
-#  на Арке существуют понятия Lines и Messages,
-#       где Lines -- это записи ретроспективной очереди сообщений на ПЛК,
-#       а Messages - это выводимые на АР12 текстовые описания возможных регистрируемых ПЛКой событий,
-#  таким образом имеется количественное условие:
-#       размер очереди сообщений >= количеству описаний
+
 class MainWindow(QMainWindow):
     _user_input_errors = {'ip_address_incorrect': ''}
     _default_status_text = "-> Перетащите сюда configuration.json"
@@ -249,7 +244,8 @@ class MainWindow(QMainWindow):
                 try:
                     json_data = json.load(opened_file)
                 except JSONDecodeError:
-                    self.ui.lblStatusText.setText(self.ui.lblStatusText.text() + ' ' + "Ошибка при чтении/парсинге JSON")
+                    self.ui.lblStatusText.setText(
+                        self.ui.lblStatusText.text() + ' ' + "Ошибка при чтении/парсинге JSON")
                     app_logger.error("Ошибка при чтении/парсинге JSON")
                 except UnicodeDecodeError:
                     self.ui.lblStatusText.setText(self.ui.lblStatusText.text() + ' ' + "Ошибка по Unicode")
@@ -260,7 +256,8 @@ class MainWindow(QMainWindow):
                 # todo: сделать проверку доступности 505-го порта, создать 505-й порт в конфигурации
             except NoPlcNameException:
                 plc_name = ""
-                self.ui.lblStatusText.setText(self.ui.lblStatusText.text() + ' ' + "В файле конфигурации не обозначено имя ПЛК")
+                self.ui.lblStatusText.setText(
+                    self.ui.lblStatusText.text() + ' ' + "В файле конфигурации не обозначено имя ПЛК")
                 app_logger.info("В файле конфигурации не обозначено имя ПЛК")
 
             if plc_name != "":
@@ -357,6 +354,7 @@ def get_plc_name(config_dict: dict) -> str:
     else:
         raise NoPlcNameException(plc_name)
     return plc_name
+
 
 # todo: добавить параметр buffer length,
 #  и сделать сборку 2 списков в разных циклах, поскольку,
