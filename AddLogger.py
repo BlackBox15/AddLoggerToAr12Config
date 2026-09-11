@@ -94,22 +94,6 @@ class MainWindow(QMainWindow):
         self._user_input_errors['ip_address_incorrect'] = value
 
     @property
-    def port_error(self) -> str:
-        return self._user_input_errors['port_incorrect']
-
-    @port_error.setter
-    def port_error(self, value: str):
-        self._user_input_errors['port_incorrect'] = value
-
-    @property
-    def register_error(self) -> str:
-        return self._user_input_errors['start_register_incorrect']
-
-    @register_error.setter
-    def register_error(self, value: str):
-        self._user_input_errors['start_register_incorrect'] = value
-
-    @property
     def get_def_status(self):
         return self._default_status_text
 
