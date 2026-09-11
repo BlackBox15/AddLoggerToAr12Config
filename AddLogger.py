@@ -379,7 +379,7 @@ def filling_new_config(config_dict: dict, plc_name: str, start_register: int, li
                 "ExternalLoggerLines": []
             }
         ]
-        config_dict['ExternalLoggers'][0]['ExternalLogger Lines'] = logger_events_list
+        config_dict['ExternalLoggers'][0]['ExternalLoggerLines'] = logger_events_list
         app_logger.info("New ExternalLoggers added.")
     else:
         QMessageBox.critical("Ошибка", "Поле ExternalLoggers - не пустое")
