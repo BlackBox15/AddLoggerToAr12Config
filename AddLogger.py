@@ -46,19 +46,21 @@ class MainWindow(QMainWindow):
         self.setAcceptDrops(True)
         window_title = self.windowTitle()
         self.setWindowTitle(window_title + ' ' + str(CURRENT_VERSION_FOR_WINDOW_TITLE))
-
-        # edit text default values
+        # сокрытие инфо-иконок
+        # ...названия и так ясно описывают назначения
+        self.ui.lblPlcIpInfo.hide()
+        self.ui.lblPortInfo.hide()
+        self.ui.lblRegisterInfo.hide()
+        # текстовые метки
         self.ui.linePlcIpAddress.setText(DEFAULT_IP_ADDRESS)
         self.ui.linePlcIpAddress.editingFinished.connect(self.ip_check)
         self.ui.linePortValue.setText(str(DEFAULT_PORT))
         self.ui.linePortValue.editingFinished.connect(self.port_check)
-
         # spinBoxes
         self.ui.spinRegister.valueChanged.connect(self.on_register_changed)
         self.ui.spinMessages.valueChanged.connect(self.on_messages_changed)
         self.ui.spinBuffer.valueChanged.connect(self.on_buffer_changed)
-
-        # fields
+        # поля
         self.ip_address = DEFAULT_IP_ADDRESS
         self.port_value = DEFAULT_PORT
         self.msg_qty = DEFAULT_START_REGISTER
