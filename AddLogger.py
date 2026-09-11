@@ -62,8 +62,8 @@ class MainWindow(QMainWindow):
         # поля
         self.ip_value = DEFAULT_IP_ADDRESS
         self.port_value = DEFAULT_PORT
-        self.messages_value = DEFAULT_START_REGISTER
-        self.lines_value = DEFAULT_BUFFER_LENGTH
+        self.lines_value = DEFAULT_START_REGISTER
+        self.messages_value = DEFAULT_BUFFER_LENGTH
         self.register_value = DEFAULT_START_REGISTER
 
     @property
@@ -135,20 +135,20 @@ class MainWindow(QMainWindow):
         self._port_value = value
 
     @property
-    def lines_value(self):
-        return self._lines_value
-
-    @lines_value.setter
-    def lines_value(self, value):
-        self._lines_value = value
-
-    @property
     def messages_value(self):
         return self._messages_value
 
     @messages_value.setter
     def messages_value(self, value):
         self._messages_value = value
+
+    @property
+    def lines_value(self):
+        return self._lines_value
+
+    @lines_value.setter
+    def lines_value(self, value):
+        self._lines_value = value
 
     @property
     def register_value(self):
@@ -165,16 +165,16 @@ class MainWindow(QMainWindow):
         self.register_value = value
 
     def on_messages_changed(self, value: int):
-        self.messages_value = value
-        if self.lines_value < self.messages_value:
-            self.lines_value = self.messages_value
-            self.ui.spinBuffer.setValue(self.lines_value)
+        self.lines_value = value
+        if self.messages_value < self.lines_value:
+            self.messages_value = self.lines_value
+            self.ui.spinBuffer.setValue(self.messages_value)
 
     def on_buffer_changed(self, value: int):
-        self.lines_value = value
-        if self.messages_value > self.lines_value:
-            self.messages_value = self.lines_value
-            self.ui.spinMessages.setValue(self.messages_value)
+        self.messages_value = value
+        if self.lines_value > self.messages_value:
+            self.lines_value = self.messages_value
+            self.ui.spinMessages.setValue(self.lines_value)
 
     def ip_check(self):
         """
@@ -265,16 +265,16 @@ class MainWindow(QMainWindow):
 
             if plc_name != "":
                 self.register_value = self.ui.spinRegister.value()
-                self.lines_value = self.ui.spinBuffer.value()
-                self.messages_value = self.ui.spinMessages.value()
+                self.messages_value = self.ui.spinBuffer.value()
+                self.lines_value = self.ui.spinMessages.value()
 
-                app_logger.info("Событие дроп, новых сообщений: %d " % self.messages_value)
+                app_logger.info("Событие дроп, новых сообщений: %d " % self.lines_value)
                 app_logger.info("Событие дроп, стартовый регистр: %d " % self.register_value)
 
                 new_config_dict = filling_new_config(
                     json_data, plc_name,
                     self.register_value,
-                    self._messages_value)
+                    self._lines_value)
 
                 target_path, _ = QFileDialog.getSaveFileName(
                     self,
