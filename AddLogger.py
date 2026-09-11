@@ -63,7 +63,7 @@ class MainWindow(QMainWindow):
         self.ip_value = DEFAULT_IP_ADDRESS
         self.port_value = DEFAULT_PORT
         self.messages_value = DEFAULT_START_REGISTER
-        self.buffer_value = DEFAULT_BUFFER_LENGTH
+        self.lines_value = DEFAULT_BUFFER_LENGTH
         self.register_value = DEFAULT_START_REGISTER
 
     @property
@@ -135,12 +135,12 @@ class MainWindow(QMainWindow):
         self._port_value = value
 
     @property
-    def buffer_value(self):
-        return self._buffer_value
+    def lines_value(self):
+        return self._lines_value
 
-    @buffer_value.setter
-    def buffer_value(self, value):
-        self._buffer_value = value
+    @lines_value.setter
+    def lines_value(self, value):
+        self._lines_value = value
 
     @property
     def messages_value(self):
@@ -166,14 +166,14 @@ class MainWindow(QMainWindow):
 
     def on_messages_changed(self, value: int):
         self.messages_value = value
-        if self.buffer_value < self.messages_value:
-            self.buffer_value = self.messages_value
-            self.ui.spinBuffer.setValue(self.buffer_value)
+        if self.lines_value < self.messages_value:
+            self.lines_value = self.messages_value
+            self.ui.spinBuffer.setValue(self.lines_value)
 
     def on_buffer_changed(self, value: int):
-        self.buffer_value = value
-        if self.messages_value > self.buffer_value:
-            self.messages_value = self.buffer_value
+        self.lines_value = value
+        if self.messages_value > self.lines_value:
+            self.messages_value = self.lines_value
             self.ui.spinMessages.setValue(self.messages_value)
 
     def ip_check(self):
@@ -265,7 +265,7 @@ class MainWindow(QMainWindow):
 
             if plc_name != "":
                 self.register_value = self.ui.spinRegister.value()
-                self.buffer_value = self.ui.spinBuffer.value()
+                self.lines_value = self.ui.spinBuffer.value()
                 self.messages_value = self.ui.spinMessages.value()
 
                 app_logger.info("Событие дроп, новых сообщений: %d " % self.messages_value)
