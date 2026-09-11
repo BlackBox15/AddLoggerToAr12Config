@@ -22,7 +22,7 @@ DEFAULT_PORT = 505
 DEFAULT_START_REGISTER = 40000
 DEFAULT_EVENTS_QTY = 10
 DEFAULT_BUFFER_LENGTH = 10
-CURRENT_VERSION_FOR_WINDOW_TITLE = 0.4
+CURRENT_VERSION_FOR_WINDOW_TITLE = 0.5
 
 
 class NoPlcNameException(Exception):
@@ -35,8 +35,7 @@ class NoPlcNameException(Exception):
 #  таким образом имеется количественное условие:
 #       размер очереди сообщений >= количеству описаний
 class MainWindow(QMainWindow):
-    _user_input_errors = {'ip_address_incorrect': '', 'port_incorrect': '', 'start_register_incorrect': '',
-                          'message_qty_incorrect': '', 'buffer_length_incorrect': ''}
+    _user_input_errors = {'ip_address_incorrect': '', 'port_incorrect': '', 'start_register_incorrect': ''}
     _default_status_text = "-> Перетащите сюда configuration.json"
 
     def __init__(self):
@@ -55,9 +54,8 @@ class MainWindow(QMainWindow):
         # текстовые метки
         self.ui.linePlcIpAddress.setText(DEFAULT_IP_ADDRESS)
         self.ui.linePlcIpAddress.editingFinished.connect(self.ip_check)
-        self.ui.linePortValue.setText(str(DEFAULT_PORT))
-        self.ui.linePortValue.editingFinished.connect(self.port_check)
         # spinBoxes
+        self.ui.spinPort.valueChanged.connect(self.on_port_changed)
         self.ui.spinRegister.valueChanged.connect(self.on_register_changed)
         self.ui.spinMessages.valueChanged.connect(self.on_messages_changed)
         self.ui.spinBuffer.valueChanged.connect(self.on_buffer_changed)
@@ -66,7 +64,7 @@ class MainWindow(QMainWindow):
         self.port_value = DEFAULT_PORT
         self.msg_qty = DEFAULT_START_REGISTER
         self.buffer_length = DEFAULT_BUFFER_LENGTH
-        self.start_register_field = DEFAULT_START_REGISTER
+        self.register_value = DEFAULT_START_REGISTER
 
     @property
     def check_err(self):
@@ -117,22 +115,6 @@ class MainWindow(QMainWindow):
         self._user_input_errors['start_register_incorrect'] = value
 
     @property
-    def messages_error(self) -> str:
-        return self._user_input_errors['message_qty_incorrect']
-
-    @messages_error.setter
-    def messages_error(self, value: str):
-        self._user_input_errors['message_qty_incorrect'] = value
-
-    @property
-    def buffer_error(self) -> str:
-        return self._user_input_errors['buffer_length_incorrect']
-
-    @buffer_error.setter
-    def buffer_error(self, value: str):
-        self._user_input_errors['buffer_length_incorrect'] = value
-
-    @property
     def get_def_status(self):
         return self._default_status_text
 
@@ -148,10 +130,12 @@ class MainWindow(QMainWindow):
     def port_value(self):
         return self._port_value
 
+    # todo: для установки значения порта удобно использовать spinbox,
+    #  где на уровне интерфейса можно выставить допустимые границы значений
+    #  и упростить сеттер
     @port_value.setter
     def port_value(self, value):
-        if 0 <= value <= 65535:
-            self._port_value = value
+        self._port_value = value
 
     @property
     def buffer_length(self):
@@ -175,15 +159,18 @@ class MainWindow(QMainWindow):
             self.status_check()
 
     @property
-    def start_register_field(self):
-        return self._start_register_field
+    def register_value(self):
+        return self._register_value
 
-    @start_register_field.setter
-    def start_register_field(self, value):
-        self._start_register_field = value
+    @register_value.setter
+    def register_value(self, value):
+        self._register_value = value
+
+    def on_port_changed(self, value: int):
+        self.port_value = value
 
     def on_register_changed(self, value: int):
-        self.start_register_field = value
+        self.register_value = value
 
     def on_messages_changed(self, value: int):
         self.msg_qty = value
@@ -302,16 +289,16 @@ class MainWindow(QMainWindow):
                 app_logger.info("В файле конфигурации не обозначено имя ПЛК")
 
             if plc_name != "":
-                self.start_register_field = self.ui.spinRegister.value()
+                self.register_value = self.ui.spinRegister.value()
                 self.buffer_length = self.ui.spinBuffer.value()
                 self.msg_qty = self.ui.spinMessages.value()
 
                 app_logger.info("Событие дроп, новых сообщений: %d " % self.msg_qty)
-                app_logger.info("Событие дроп, стартовый регистр: %d " % self.start_register_field)
+                app_logger.info("Событие дроп, стартовый регистр: %d " % self.register_value)
 
                 new_config_dict = filling_new_config(
                     json_data, plc_name,
-                    self.start_register_field,
+                    self.register_value,
                     self._msg_qty)
 
                 target_path, _ = QFileDialog.getSaveFileName(

@@ -50,25 +50,6 @@
     <string>Стартовый регистр</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="linePortValue">
-   <property name="geometry">
-    <rect>
-     <x>280</x>
-     <y>80</y>
-     <width>171</width>
-     <height>26</height>
-    </rect>
-   </property>
-   <property name="focusPolicy">
-    <enum>Qt::FocusPolicy::StrongFocus</enum>
-   </property>
-   <property name="inputMethodHints">
-    <set>Qt::InputMethodHint::ImhDigitsOnly</set>
-   </property>
-   <property name="placeholderText">
-    <string>505</string>
-   </property>
-  </widget>
   <widget class="QLabel" name="lblBufferLength">
    <property name="geometry">
     <rect>
@@ -216,7 +197,7 @@
     </rect>
    </property>
    <property name="toolTip">
-    <string>Размер ретроспективной очереди сообщений на ПЛК</string>
+    <string>Размер ретроспективной очереди сообщений на ПЛК (1-99 сообщений)</string>
    </property>
    <property name="text">
     <string/>
@@ -235,7 +216,7 @@
     </rect>
    </property>
    <property name="toolTip">
-    <string>Количество возможных событий, регистрируемых ПЛК</string>
+    <string>Количество возможных событий, регистрируемых ПЛК (1-99 сообщений)</string>
    </property>
    <property name="text">
     <string/>
@@ -298,10 +279,28 @@
     <number>10</number>
    </property>
   </widget>
+  <widget class="QSpinBox" name="spinPort">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>80</y>
+     <width>121</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="minimum">
+    <number>0</number>
+   </property>
+   <property name="maximum">
+    <number>65535</number>
+   </property>
+   <property name="value">
+    <number>505</number>
+   </property>
+  </widget>
   <zorder>lblStatusText</zorder>
   <zorder>lblBufferLength</zorder>
   <zorder>lblStartRegister</zorder>
-  <zorder>linePortValue</zorder>
   <zorder>lblMessagesQuantity</zorder>
   <zorder>lblPortValue</zorder>
   <zorder>lblPlcIpAddress</zorder>
@@ -314,13 +313,14 @@
   <zorder>spinRegister</zorder>
   <zorder>spinBuffer</zorder>
   <zorder>spinMessages</zorder>
+  <zorder>spinPort</zorder>
  </widget>
  <tabstops>
+  <tabstop>spinRegister</tabstop>
   <tabstop>spinBuffer</tabstop>
   <tabstop>spinMessages</tabstop>
   <tabstop>linePlcIpAddress</tabstop>
-  <tabstop>linePortValue</tabstop>
-  <tabstop>spinRegister</tabstop>
+  <tabstop>spinPort</tabstop>
  </tabstops>
  <resources/>
  <connections/>
