@@ -130,9 +130,6 @@ class MainWindow(QMainWindow):
     def port_value(self):
         return self._port_value
 
-    # todo: для установки значения порта удобно использовать spinbox,
-    #  где на уровне интерфейса можно выставить допустимые границы значений
-    #  и упростить сеттер
     @port_value.setter
     def port_value(self, value):
         self._port_value = value
@@ -143,8 +140,7 @@ class MainWindow(QMainWindow):
 
     @buffer_length.setter
     def buffer_length(self, value):
-        if value > 0:
-            self._buffer_length = value
+        self._buffer_length = value
 
     @property
     def msg_qty(self):
@@ -152,11 +148,7 @@ class MainWindow(QMainWindow):
 
     @msg_qty.setter
     def msg_qty(self, value):
-        if value > 0:
-            self._msg_qty = value
-        else:
-            self.messages_error = "Отрицательное значение"
-            self.status_check()
+        self._msg_qty = value
 
     @property
     def register_value(self):
