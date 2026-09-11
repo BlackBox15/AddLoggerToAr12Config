@@ -35,7 +35,7 @@ class NoPlcNameException(Exception):
 #  таким образом имеется количественное условие:
 #       размер очереди сообщений >= количеству описаний
 class MainWindow(QMainWindow):
-    _user_input_errors = {'ip_address_incorrect': '', 'port_incorrect': '', 'start_register_incorrect': ''}
+    _user_input_errors = {'ip_address_incorrect': ''}
     _default_status_text = "-> Перетащите сюда configuration.json"
 
     def __init__(self):
@@ -196,23 +196,6 @@ class MainWindow(QMainWindow):
             app_logger.error("Некорректный IP адрес")
         finally:
             self.ui.lblStatusText.setText(self.status_check())
-    #
-    # def port_check(self):
-    #     """
-    #     Проверка значения порта в поле ввода
-    #     :return:
-    #     """
-    #     new_port = self.ui.linePortValue.text().strip()
-    #
-    #     if new_port.isdigit() and (0 <= int(new_port) <= 65535):
-    #         self.port_value = int(new_port)
-    #         self.port_error = ''
-    #         app_logger.info("Порт обновлён: " + new_port)
-    #     else:
-    #         self.port_error = "Некорректный порт"
-    #         app_logger.error("Некорректный порт")
-    #
-    #     self.ui.lblStatusText.setText(self.status_check())
 
     def status_check(self) -> str:
         for value in self.all_err:
