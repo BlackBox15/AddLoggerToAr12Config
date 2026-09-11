@@ -70,22 +70,6 @@ class MainWindow(QMainWindow):
         return self._user_input_errors.values()
 
     @property
-    def plc_err(self):
-        return self._user_input_errors['plc_name']
-
-    @plc_err.setter
-    def plc_err(self, value: str):
-        self._user_input_errors['plc_name'] = value
-
-    @property
-    def json_err(self):
-        return self._user_input_errors['json']
-
-    @json_err.setter
-    def json_err(self, value: str):
-        self._user_input_errors['json'] = value
-
-    @property
     def ip_error(self) -> str:
         return self._user_input_errors['ip_address_incorrect']
 
