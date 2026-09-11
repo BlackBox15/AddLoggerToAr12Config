@@ -22,11 +22,11 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(674, 439)
+        MainWindow.resize(500, 320)
         MainWindow.setAcceptDrops(True)
         self.lblStatusText = QLabel(MainWindow)
         self.lblStatusText.setObjectName(u"lblStatusText")
-        self.lblStatusText.setGeometry(QRect(40, 350, 471, 71))
+        self.lblStatusText.setGeometry(QRect(10, 220, 471, 71))
         font = QFont()
         font.setItalic(True)
         self.lblStatusText.setFont(font)
@@ -48,7 +48,7 @@ class Ui_MainWindow(object):
         self.lblPlcIpAddress.setGeometry(QRect(20, 50, 74, 16))
         self.linePlcIpAddress = QLineEdit(MainWindow)
         self.linePlcIpAddress.setObjectName(u"linePlcIpAddress")
-        self.linePlcIpAddress.setGeometry(QRect(280, 50, 171, 26))
+        self.linePlcIpAddress.setGeometry(QRect(280, 50, 121, 26))
         self.linePlcIpAddress.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.linePlcIpAddress.setToolTipDuration(-1)
         self.linePlcIpAddress.setInputMethodHints(Qt.InputMethodHint.ImhDigitsOnly)
