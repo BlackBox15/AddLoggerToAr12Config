@@ -330,27 +330,27 @@ def get_plc_name(config_dict: dict) -> str:
 #  длина буфера >= количеству регистрируемых событий на ПЛК
 
 
-def filling_new_config(config_dict: dict, plc_name: str, start_register: int, messages_qty: int) -> dict:
+def filling_new_config(config_dict: dict, plc_name: str, start_register: int, lines_qty: int,
+                       messages_qty=None) -> dict:
     """
     Заполнение словаря JSON-конфигурации согласно передаваемым параметрам.
-    :param messages_qty: Количество добавляемых сообщений в Логгер
+    :param messages_qty: Количество
+    :param lines_qty: Количество добавляемых сообщений в Логгер
     :param start_register: начальный Modbus-регистр
     :param config_dict: старый словарь конфигурации
     :param plc_name: имя контроллера
     :return: новый словарь конфигурации
     """
-    app_logger.info("Заполнение обновлённого конфига, новых сообщений: %d " % messages_qty)
+    app_logger.info("Заполнение обновлённого конфига, новых сообщений: %d " % lines_qty)
     app_logger.info("Заполнение обновлённого конфига, стартовый регистр: %d " % start_register)
 
     logger_events_list = list()
     logger_messages_list = list()
 
+    if messages_qty is None:
+        messages_qty = lines_qty
+
     for i in range(messages_qty):
-        logger_one_event_dict = {
-            "TimeRelayNumber": start_register + (i * 4) + 2,
-            "EventRelayNumber": (start_register - 30_000) + (i * 4) + 4,
-            "ArgRelayNuber": (start_register - 30_000) + (i * 4) + 5
-        }
         logger_one_message_dict = {
             "Name": "message" + str(i + 1),
             "IsEnabled": True,
@@ -358,8 +358,15 @@ def filling_new_config(config_dict: dict, plc_name: str, start_register: int, me
             "LoggerName": "Logger1",
             "MessageFormat": "test for message" + str(i + 1) + " with argument = {0}"
         }
-        logger_events_list.append(logger_one_event_dict)
         logger_messages_list.append(logger_one_message_dict)
+
+    for i in range(lines_qty):
+        logger_one_event_dict = {
+            "TimeRelayNumber": start_register + (i * 4) + 2,
+            "EventRelayNumber": (start_register - 30_000) + (i * 4) + 4,
+            "ArgRelayNuber": (start_register - 30_000) + (i * 4) + 5
+        }
+        logger_events_list.append(logger_one_event_dict)
 
     if len(config_dict['ExternalLoggers']) == 0:
         config_dict['ExternalLoggers'] = [
@@ -375,7 +382,8 @@ def filling_new_config(config_dict: dict, plc_name: str, start_register: int, me
         config_dict['ExternalLoggers'][0]['ExternalLogger Lines'] = logger_events_list
         app_logger.info("New ExternalLoggers added.")
     else:
-        app_logger.info("поле ExternalLoggers не пустое")
+        QMessageBox.critical("Ошибка", "Поле ExternalLoggers - не пустое")
+        app_logger.info("Поле ExternalLoggers - не пустое")
 
     if len(config_dict['ExternalLoggingMessages']) == 0:
         config_dict['ExternalLoggingMessages'] = logger_messages_list

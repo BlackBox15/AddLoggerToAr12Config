@@ -23,6 +23,8 @@ class Ui_MainWindow(object):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(500, 320)
+        MainWindow.setMinimumSize(QSize(500, 320))
+        MainWindow.setMaximumSize(QSize(500, 320))
         MainWindow.setAcceptDrops(True)
         self.lblStatusText = QLabel(MainWindow)
         self.lblStatusText.setObjectName(u"lblStatusText")
