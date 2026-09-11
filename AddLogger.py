@@ -60,10 +60,10 @@ class MainWindow(QMainWindow):
         self.ui.spinMessages.valueChanged.connect(self.on_messages_changed)
         self.ui.spinBuffer.valueChanged.connect(self.on_buffer_changed)
         # поля
-        self.ip_address = DEFAULT_IP_ADDRESS
+        self.ip_value = DEFAULT_IP_ADDRESS
         self.port_value = DEFAULT_PORT
-        self.msg_qty = DEFAULT_START_REGISTER
-        self.buffer_length = DEFAULT_BUFFER_LENGTH
+        self.messages_value = DEFAULT_START_REGISTER
+        self.buffer_value = DEFAULT_BUFFER_LENGTH
         self.register_value = DEFAULT_START_REGISTER
 
     @property
@@ -119,12 +119,12 @@ class MainWindow(QMainWindow):
         return self._default_status_text
 
     @property
-    def ip_address(self):
-        return self._ip_address
+    def ip_value(self):
+        return self._ip_value
 
-    @ip_address.setter
-    def ip_address(self, value):
-        self._ip_address = value
+    @ip_value.setter
+    def ip_value(self, value):
+        self._ip_value = value
 
     @property
     def port_value(self):
@@ -135,20 +135,20 @@ class MainWindow(QMainWindow):
         self._port_value = value
 
     @property
-    def buffer_length(self):
-        return self._buffer_length
+    def buffer_value(self):
+        return self._buffer_value
 
-    @buffer_length.setter
-    def buffer_length(self, value):
-        self._buffer_length = value
+    @buffer_value.setter
+    def buffer_value(self, value):
+        self._buffer_value = value
 
     @property
-    def msg_qty(self):
-        return self._msg_qty
+    def messages_value(self):
+        return self._messages_value
 
-    @msg_qty.setter
-    def msg_qty(self, value):
-        self._msg_qty = value
+    @messages_value.setter
+    def messages_value(self, value):
+        self._messages_value = value
 
     @property
     def register_value(self):
@@ -165,16 +165,16 @@ class MainWindow(QMainWindow):
         self.register_value = value
 
     def on_messages_changed(self, value: int):
-        self.msg_qty = value
-        if self.buffer_length < self.msg_qty:
-            self.buffer_length = self.msg_qty
-            self.ui.spinBuffer.setValue(self.buffer_length)
+        self.messages_value = value
+        if self.buffer_value < self.messages_value:
+            self.buffer_value = self.messages_value
+            self.ui.spinBuffer.setValue(self.buffer_value)
 
     def on_buffer_changed(self, value: int):
-        self.buffer_length = value
-        if self.msg_qty > self.buffer_length:
-            self.msg_qty = self.buffer_length
-            self.ui.spinMessages.setValue(self.msg_qty)
+        self.buffer_value = value
+        if self.messages_value > self.buffer_value:
+            self.messages_value = self.buffer_value
+            self.ui.spinMessages.setValue(self.messages_value)
 
     def ip_check(self):
         """
@@ -188,7 +188,7 @@ class MainWindow(QMainWindow):
             if not isinstance(ip, IPv4Address):
                 raise ValueError
             else:
-                self.ip_address = new_ip_address
+                self.ip_value = new_ip_address
                 self.ip_error = ''
                 app_logger.info("IP адрес обновлён: " + new_ip_address)
         except ValueError:
@@ -196,23 +196,23 @@ class MainWindow(QMainWindow):
             app_logger.error("Некорректный IP адрес")
         finally:
             self.ui.lblStatusText.setText(self.status_check())
-
-    def port_check(self):
-        """
-        Проверка значения порта в поле ввода
-        :return:
-        """
-        new_port = self.ui.linePortValue.text().strip()
-
-        if new_port.isdigit() and (0 <= int(new_port) <= 65535):
-            self.port_value = int(new_port)
-            self.port_error = ''
-            app_logger.info("Порт обновлён: " + new_port)
-        else:
-            self.port_error = "Некорректный порт"
-            app_logger.error("Некорректный порт")
-
-        self.ui.lblStatusText.setText(self.status_check())
+    #
+    # def port_check(self):
+    #     """
+    #     Проверка значения порта в поле ввода
+    #     :return:
+    #     """
+    #     new_port = self.ui.linePortValue.text().strip()
+    #
+    #     if new_port.isdigit() and (0 <= int(new_port) <= 65535):
+    #         self.port_value = int(new_port)
+    #         self.port_error = ''
+    #         app_logger.info("Порт обновлён: " + new_port)
+    #     else:
+    #         self.port_error = "Некорректный порт"
+    #         app_logger.error("Некорректный порт")
+    #
+    #     self.ui.lblStatusText.setText(self.status_check())
 
     def status_check(self) -> str:
         for value in self.all_err:
@@ -282,16 +282,16 @@ class MainWindow(QMainWindow):
 
             if plc_name != "":
                 self.register_value = self.ui.spinRegister.value()
-                self.buffer_length = self.ui.spinBuffer.value()
-                self.msg_qty = self.ui.spinMessages.value()
+                self.buffer_value = self.ui.spinBuffer.value()
+                self.messages_value = self.ui.spinMessages.value()
 
-                app_logger.info("Событие дроп, новых сообщений: %d " % self.msg_qty)
+                app_logger.info("Событие дроп, новых сообщений: %d " % self.messages_value)
                 app_logger.info("Событие дроп, стартовый регистр: %d " % self.register_value)
 
                 new_config_dict = filling_new_config(
                     json_data, plc_name,
                     self.register_value,
-                    self._msg_qty)
+                    self._messages_value)
 
                 target_path, _ = QFileDialog.getSaveFileName(
                     self,
