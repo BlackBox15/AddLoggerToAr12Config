@@ -14,3 +14,6 @@
 test.txt
 # icon files
 *.svg
+
+#micropython some settings from IDE
+micropython-tools-settings.xml
