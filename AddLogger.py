@@ -27,6 +27,10 @@ CURRENT_VERSION_FOR_WINDOW_TITLE = 0.5
 
 class NoPlcNameException(Exception):
     pass
+class ExternalLoggerNameConflict(Exception):
+    pass
+class ExternalLoggerAlreadyHas(Exception):
+    pass
 
 
 class MainWindow(QMainWindow):
@@ -236,6 +240,11 @@ class MainWindow(QMainWindow):
                 app_logger.info("Событие дроп, новых сообщений: %d " % self.lines_value)
                 app_logger.info("Событие дроп, стартовый регистр: %d " % self.register_value)
 
+                #todo: перед вызовом диалога сохранения нового конфиг-файла нужно быть уверенным,
+                # что заполнение выполнено корректно, как вариант,
+                # в случае ошибок при заполнении конфига можно выбрасывать специальные исключения,
+                # таким образом, вызов диалога сохранения нового конфига будет выполняться только при условии отсутствии исключений,
+                # т.е. в случае корректно-заполненного нового конфига
                 new_config_dict = filling_new_config(
                     json_data, plc_name,
                     self.register_value,
