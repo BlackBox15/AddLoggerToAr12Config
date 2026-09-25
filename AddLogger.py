@@ -346,8 +346,8 @@ def get_plc_name(config_dict: dict) -> str:
 #  Дополнительное проверочное условие: длина буфера >= количеству текстовых сообщений.
 def filling_new_config(config_dict: dict,
                        plc_name: str,
-                       start_register: int,
                        lines_qty: int,
+                       start_register: int = 40_000,
                        messages_qty=None) -> dict:
     """
     Заполнение словаря JSON-конфигурации согласно передаваемым параметрам.
