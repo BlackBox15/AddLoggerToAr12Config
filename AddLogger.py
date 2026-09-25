@@ -27,8 +27,12 @@ CURRENT_VERSION_FOR_WINDOW_TITLE = 0.5
 
 class NoPlcNameException(Exception):
     pass
+
+
 class ExternalLoggerNameConflict(Exception):
     pass
+
+
 class ExternalLoggerAlreadyHas(Exception):
     pass
 
@@ -172,7 +176,8 @@ class MainWindow(QMainWindow):
             self.setAcceptDrops(True)
             return self.get_def_status
 
-    def dragEnterEvent(self, event):
+    def dragEnterEvent(self,
+                       event):
         """
         Функция вызывается при "заносе" внутрь границ окна объекта
         :param event:
@@ -192,7 +197,8 @@ class MainWindow(QMainWindow):
         if mimetype:
             event.acceptProposedAction()
 
-    def dropEvent(self, event):
+    def dropEvent(self,
+                  event):
         """
         Функция вызывается при "сбросе" объекта внутри границ окна
         :param event:
@@ -237,7 +243,7 @@ class MainWindow(QMainWindow):
                 app_logger.info("Событие дроп, новых сообщений: %d " % self.lines_value)
                 app_logger.info("Событие дроп, стартовый регистр: %d " % self.register_value)
 
-                #todo: перед вызовом диалога сохранения нового конфиг-файла нужно быть уверенным,
+                # todo: перед вызовом диалога сохранения нового конфиг-файла нужно быть уверенным,
                 # что заполнение выполнено корректно
                 # как вариант,
                 # в случае ошибок при заполнении конфига можно выбрасывать специальные исключения,
@@ -271,7 +277,8 @@ class MainWindow(QMainWindow):
         event.acceptProposedAction()
 
 
-def put_new_plc_module(config_dict: dict, port: int) -> dict:
+def put_new_plc_module(config_dict: dict,
+                       port: int) -> dict:
     """
     Добавление нового модуля ПЛК в JSON-конфигурацию
     :param config_dict: Словарь с JSON-конфигурацей
@@ -331,13 +338,16 @@ def get_plc_name(config_dict: dict) -> str:
     return plc_name
 
 
-# todo: добавить параметр buffer length,
-#  и сделать сборку 2 списков в разных циклах, поскольку,
-#  в общем случае,
-#  длина буфера >= количеству регистрируемых событий на ПЛК
-
-
-def filling_new_config(config_dict: dict, plc_name: str, start_register: int, lines_qty: int,
+# todo: при заполнении в новом конфиге формируются два JSON-списка:
+#  1. список регистров ретроспективного буфера
+#  2. и список текстовых возможных текстовых сообщений..
+#  Размеры списков, в общем случае, разные.
+#  Таким образом в функцию необходимо передавать оба размера как отдельные параметры.
+#  Дополнительное проверочное условие: длина буфера >= количеству текстовых сообщений.
+def filling_new_config(config_dict: dict,
+                       plc_name: str,
+                       start_register: int,
+                       lines_qty: int,
                        messages_qty=None) -> dict:
     """
     Заполнение словаря JSON-конфигурации согласно передаваемым параметрам.
