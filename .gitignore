@@ -1,3 +1,5 @@
+/.idea/
+
 # json files
 *.json
 
@@ -23,3 +25,4 @@ encodings.xml
 
 # IDE's codestyle setting
 codeStyleConfig.xml
+
