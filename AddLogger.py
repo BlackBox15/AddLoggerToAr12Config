@@ -146,7 +146,6 @@ class MainWindow(QMainWindow):
     def ip_check(self):
         """
         Проверка корректности информации на соответствие формату IP-адреса
-        :return:
         """
         new_ip_address = self.ui.linePlcIpAddress.text().strip()
 
@@ -177,7 +176,6 @@ class MainWindow(QMainWindow):
         """
         Функция вызывается при "заносе" внутрь границ окна объекта
         :param event:
-        :return:
         """
         mimetype = event.mimeData().hasText()
         mimeData = event.mimeData()
@@ -198,7 +196,6 @@ class MainWindow(QMainWindow):
         """
         Функция вызывается при "сбросе" объекта внутри границ окна
         :param event:
-        :return:
         """
         json_data: dict
         urls = event.mimeData().urls()  # Получаем список URL перетаскиваемых объектов
