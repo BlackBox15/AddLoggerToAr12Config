@@ -20,3 +20,6 @@ micropython-tools-settings.xml
 
 # encoding settings for IDE
 encodings.xml
+
+# IDE's codestyle setting
+codeStyleConfig.xml
