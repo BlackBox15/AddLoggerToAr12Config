@@ -1,15 +1,15 @@
 # Скрипт для добавления функций логирования в файл конфигурации Ар12.
 # Нужно открыть файл конфигурации, внести в него блок с логгером по-умолчанию, сохранить файл конфигурации
-
 import json
 import logging
 import sys
-from ipaddress import ip_address, IPv4Address
 from json import JSONDecodeError
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
+
+from CustomExceptions import NoPlcNameException
+from MyExternalMethods import ip_check
 from ui_mainwindow3_1 import Ui_MainWindow
-from CustomExceptions import NoPlcNameException, ExternalLoggerAlreadyHas, ExternalLoggerNameConflict
 
 logging.basicConfig(filename="./AddLogger.log", level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -32,6 +32,13 @@ class MainWindow(QMainWindow):
     def __init__(self):
 
         super(MainWindow, self).__init__()
+        # поля
+        self.ip_value = DEFAULT_IP_ADDRESS
+        self.port_value = DEFAULT_PORT
+        self.lines_value = DEFAULT_START_REGISTER
+        self.messages_value = DEFAULT_BUFFER_LENGTH
+        self.register_value = DEFAULT_START_REGISTER
+        #
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.setAcceptDrops(True)
@@ -43,19 +50,14 @@ class MainWindow(QMainWindow):
         self.ui.lblPortInfo.hide()
         self.ui.lblRegisterInfo.hide()
         # текстовые метки
-        self.ui.linePlcIpAddress.setText(DEFAULT_IP_ADDRESS)
-        self.ui.linePlcIpAddress.editingFinished.connect(self.ip_check)
+        self.ui.linePlcIpAddress.setText(self.ip_value)
+        self.ui.linePlcIpAddress.editingFinished.connect(self.on_ip_changed)
         # spinBoxes
         self.ui.spinPort.valueChanged.connect(self.on_port_changed)
         self.ui.spinRegister.valueChanged.connect(self.on_register_changed)
         self.ui.spinMessages.valueChanged.connect(self.on_messages_changed)
         self.ui.spinBuffer.valueChanged.connect(self.on_buffer_changed)
-        # поля
-        self.ip_value = DEFAULT_IP_ADDRESS
-        self.port_value = DEFAULT_PORT
-        self.lines_value = DEFAULT_START_REGISTER
-        self.messages_value = DEFAULT_BUFFER_LENGTH
-        self.register_value = DEFAULT_START_REGISTER
+
 
     @property
     def check_err(self):
@@ -117,6 +119,15 @@ class MainWindow(QMainWindow):
     def register_value(self, value):
         self._register_value = value
 
+    def on_ip_changed(self):
+        value = self.ui.linePlcIpAddress.text()
+        if ip_check(value):
+            self.ip_value = value
+            self.ui.linePlcIpAddress.setText(value)
+        else:
+            self.ip_value = DEFAULT_IP_ADDRESS
+            self.ui.linePlcIpAddress.setText(DEFAULT_IP_ADDRESS)
+
     def on_port_changed(self, value: int):
         self.port_value = value
 
@@ -135,25 +146,25 @@ class MainWindow(QMainWindow):
             self.lines_value = self.messages_value
             self.ui.spinMessages.setValue(self.lines_value)
 
-    def ip_check(self):
-        """
-        Проверка корректности информации на соответствие формату IP-адреса
-        """
-        new_ip_address = self.ui.linePlcIpAddress.text().strip()
-
-        try:
-            ip = ip_address(new_ip_address)
-            if not isinstance(ip, IPv4Address):
-                raise ValueError
-            else:
-                self.ip_value = new_ip_address
-                self.ip_error = ''
-                app_logger.info("IP адрес обновлён: " + new_ip_address)
-        except ValueError:
-            self.ip_error = "Некорректный IP адрес"
-            app_logger.error("Некорректный IP адрес")
-        finally:
-            self.ui.lblStatusText.setText(self.status_check())
+    # def ip_check(self):
+    #     """
+    #     Проверка корректности информации на соответствие формату IP-адреса
+    #     """
+    #     new_ip_address = self.ui.linePlcIpAddress.text().strip()
+    #
+    #     try:
+    #         ip = ip_address(new_ip_address)
+    #         if not isinstance(ip, IPv4Address):
+    #             raise ValueError
+    #         else:
+    #             self.ip_value = new_ip_address
+    #             self.ip_error = ''
+    #             app_logger.info("IP адрес обновлён: " + new_ip_address)
+    #     except ValueError:
+    #         self.ip_error = "Некорректный IP адрес"
+    #         app_logger.error("Некорректный IP адрес")
+    #     finally:
+    #         self.ui.lblStatusText.setText(self.status_check())
 
     def status_check(self) -> str:
         for value in self.all_err:
