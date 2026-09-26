@@ -125,8 +125,8 @@ class MainWindow(QMainWindow):
             self.ip_value = value
             self.ui.linePlcIpAddress.setText(value)
         else:
-            self.ip_value = DEFAULT_IP_ADDRESS
-            self.ui.linePlcIpAddress.setText(DEFAULT_IP_ADDRESS)
+            # self.ip_value = DEFAULT_IP_ADDRESS
+            self.ui.linePlcIpAddress.setText(self.ip_value)
 
     def on_port_changed(self, value: int):
         self.port_value = value
