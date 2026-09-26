@@ -5,7 +5,8 @@ import logging
 import sys
 from json import JSONDecodeError
 
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox, QDialog, QVBoxLayout, QLabel, \
+    QButtonGroup, QRadioButton, QHBoxLayout, QPushButton
 
 from CustomExceptions import NoPlcNameException
 from MyExternalMethods import ip_check
@@ -23,6 +24,37 @@ DEFAULT_START_REGISTER = 40000
 DEFAULT_EVENTS_QTY = 10
 DEFAULT_BUFFER_LENGTH = 10
 CURRENT_VERSION_FOR_WINDOW_TITLE = 0.5
+
+class PlcNameChooseWindow(QDialog):
+    def __init__(self, options, parent=None, title = "Выберите ПЛК"):
+        super().__init__(parent)
+        self.windowTitle(title)
+        self.selected_value = None
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(QLabel("Выберите один из вариантов:"))
+
+        self.group = QButtonGroup(self)
+        self.buttons = []
+        for i, opt in enumerate(options):
+            rb = QRadioButton(opt)
+            self.group.addButton(rb, i)
+            layout.addWidget(rb)
+            self.buttons.append(rb)
+            if i == 0:
+                rb.setChecked(True)  # по умолчанию — первый
+
+        # Кнопки OK / Cancel
+        btn_layout = QHBoxLayout()
+        ok_btn = QPushButton("OK")
+        cancel_btn = QPushButton("Отмена")
+        ok_btn.clicked.connect(self.accept)
+        cancel_btn.clicked.connect(self.reject)
+        btn_layout.addWidget(ok_btn)
+        btn_layout.addWidget(cancel_btn)
+        layout.addLayout(btn_layout)
+
+
 
 
 class MainWindow(QMainWindow):
@@ -125,7 +157,6 @@ class MainWindow(QMainWindow):
             self.ip_value = value
             self.ui.linePlcIpAddress.setText(value)
         else:
-            # self.ip_value = DEFAULT_IP_ADDRESS
             self.ui.linePlcIpAddress.setText(self.ip_value)
 
     def on_port_changed(self, value: int):
