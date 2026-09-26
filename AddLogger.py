@@ -8,8 +8,8 @@ from ipaddress import ip_address, IPv4Address
 from json import JSONDecodeError
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
-
 from ui_mainwindow3_1 import Ui_MainWindow
+from CustomExceptions import NoPlcNameException, ExternalLoggerAlreadyHas, ExternalLoggerNameConflict
 
 logging.basicConfig(filename="./AddLogger.log", level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -23,18 +23,6 @@ DEFAULT_START_REGISTER = 40000
 DEFAULT_EVENTS_QTY = 10
 DEFAULT_BUFFER_LENGTH = 10
 CURRENT_VERSION_FOR_WINDOW_TITLE = 0.5
-
-
-class NoPlcNameException(Exception):
-    pass
-
-
-class ExternalLoggerNameConflict(Exception):
-    pass
-
-
-class ExternalLoggerAlreadyHas(Exception):
-    pass
 
 
 class MainWindow(QMainWindow):
@@ -243,24 +231,22 @@ class MainWindow(QMainWindow):
                 app_logger.info("Событие дроп, новых сообщений: %d " % self.lines_value)
                 app_logger.info("Событие дроп, стартовый регистр: %d " % self.register_value)
 
-                # todo: перед вызовом диалога сохранения нового конфиг-файла нужно быть уверенным,
-                # что заполнение выполнено корректно
-                # как вариант,
-                # в случае ошибок при заполнении конфига можно выбрасывать специальные исключения,
-                # таким образом, вызов диалога сохранения нового конфига будет выполняться только при условии отсутствии исключений,
-                # т.е. в случае корректно-заполненного нового конфига
-                new_config_dict = filling_new_config(
-                    json_data, plc_name,
-                    self.register_value,
-                    self._lines_value)
+                # todo: перед вызовом диалога сохранения нового конфига нужно быть уверенным,
+                #  что заполнение выполнено корректно
+                #  как вариант, в случае ошибок при заполнении конфига можно выбрасывать специальные исключения,
+                #  таким образом, вызов диалога сохранения нового конфига будет выполняться только при условии отсутствии исключений,
+                #  т.е. в случае корректно-заполненного нового конфига
 
-                target_path, _ = QFileDialog.getSaveFileName(
-                    self,
-                    "Сохранить файл как...",
-                    dropped_file_path,  # начальная директория (можно указать)
-                    "Все файлы (*.*)",  # фильтр
-                    # options=options
-                )
+                new_config_dict = filling_new_config(json_data, plc_name,
+                                                     self.register_value,
+                                                     self._lines_value)
+
+                target_path, _ = QFileDialog.getSaveFileName(self,
+                                                             "Сохранить файл как...",
+                                                             dropped_file_path,  # начальная директория (можно указать)
+                                                             "Все файлы (*.*)",  # фильтр
+                                                             # options=options
+                                                             )
 
                 if target_path:
                     try:
