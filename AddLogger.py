@@ -25,8 +25,9 @@ DEFAULT_EVENTS_QTY = 10
 DEFAULT_BUFFER_LENGTH = 10
 CURRENT_VERSION_FOR_WINDOW_TITLE = 0.5
 
+
 class PlcNameChooseWindow(QDialog):
-    def __init__(self, options, parent=None, title = "Выберите ПЛК"):
+    def __init__(self, options, parent=None, title="Выберите ПЛК"):
         super().__init__(parent)
         self.setWindowTitle(title)
         self.selected_value = None
@@ -54,11 +55,15 @@ class PlcNameChooseWindow(QDialog):
         btn_layout.addWidget(cancel_btn)
         layout.addLayout(btn_layout)
 
-
     def get_selected(self):
-        """Возвращает текст выбранной радиокнопки или None."""
+        """Возвращает текст выбранной радио-кнопки или None."""
         btn = self.group.checkedButton()
-        return btn.text() if btn else None
+        return btn.text()
+
+    def reject(self):
+        """Esc / Cancel / крестик -> берём дефолт и закрываемся как Accepted."""
+        # self.group.button(self.default_index).setChecked(True)
+        super().accept()
 
 
 class MainWindow(QMainWindow):
@@ -93,7 +98,6 @@ class MainWindow(QMainWindow):
         self.ui.spinRegister.valueChanged.connect(self.on_register_changed)
         self.ui.spinMessages.valueChanged.connect(self.on_messages_changed)
         self.ui.spinBuffer.valueChanged.connect(self.on_buffer_changed)
-
 
     @property
     def check_err(self):
@@ -263,8 +267,8 @@ class MainWindow(QMainWindow):
             try:
                 plc_name = get_plc_name(json_data, self)
                 # todo: сделать проверку доступности 505-го порта, создать 505-й порт в конфигурации
-            except NoPlcNameException:
-                plc_name = ""
+            except NoPlcNameException as e:
+                plc_name = e.args[0]
                 self.ui.lblStatusText.setText(
                     self.ui.lblStatusText.text() + ' ' + "В файле конфигурации не обозначено имя ПЛК")
                 app_logger.info("В файле конфигурации не обозначено имя ПЛК")
@@ -362,32 +366,25 @@ def get_plc_name(config_dict: dict, parent_window) -> str:
     :param parent_window: Ссылка на родительское окно, используется, чтобы диалоговое появлялось по центру родительского
     :return: имя контроллера
     """
-    plc_name = "no data"
-    plc_qty = len(config_dict['ModulesIO'])
+    new_plc_name = "no data"
+    plc_modules_qty = len(config_dict['ModulesIO'])
 
-    if plc_qty == 0:
-        raise NoPlcNameException(plc_name)
+    if plc_modules_qty == 0:
+        raise NoPlcNameException(new_plc_name)
 
-    if plc_qty == 1:
-        plc_name = config_dict['ModulesIO'][0]['Name']
+    if plc_modules_qty == 1:
+        if len(config_dict['ModulesIO'][0]['Name']) != 0:
+            new_plc_name = config_dict['ModulesIO'][0]['Name'] or "no data"
+        else:
+            raise NoPlcNameException(new_plc_name)
     else:
-        plc_names = [config_dict['ModulesIO'][i]['Name'] for i in range(plc_qty)]
+        plc_names = [config_dict['ModulesIO'][i]['Name'] for i in range(plc_modules_qty)]
         dlg = PlcNameChooseWindow(plc_names, parent=parent_window, title="Уточните выбор ПЛК")
 
-        if dlg.exec() == QDialog.accepted:      # для PyQt6: dlg.exec()
-            value = dlg.get_selected()
-            # self.result_field.setText(value)
+        if dlg.exec() == QDialog.DialogCode.Accepted:  # для PyQt6: dlg.exec()
+            new_plc_name = dlg.get_selected()
 
-
-
-    # if
-    #
-    # if len(config_dict['ModulesIO'][0]['Name']) != 0:
-    #     plc_name = config_dict['ModulesIO'][0]['Name']
-    #     print(json.dumps(config_dict['ModulesIO'][0], indent=4, sort_keys=True, ensure_ascii=False))
-    # else:
-    #     raise NoPlcNameException(plc_name)
-    # return plc_name
+    return new_plc_name
 
 
 # todo: при заполнении в новом конфиге формируются два JSON-списка:
