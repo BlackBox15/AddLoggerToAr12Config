@@ -28,7 +28,7 @@ CURRENT_VERSION_FOR_WINDOW_TITLE = 0.5
 class PlcNameChooseWindow(QDialog):
     def __init__(self, options, parent=None, title = "Выберите ПЛК"):
         super().__init__(parent)
-        self.windowTitle(title)
+        self.setWindowTitle(title)
         self.selected_value = None
 
         layout = QVBoxLayout(self)
@@ -55,6 +55,10 @@ class PlcNameChooseWindow(QDialog):
         layout.addLayout(btn_layout)
 
 
+    def get_selected(self):
+        """Возвращает текст выбранной радиокнопки или None."""
+        btn = self.group.checkedButton()
+        return btn.text() if btn else None
 
 
 class MainWindow(QMainWindow):
@@ -257,7 +261,7 @@ class MainWindow(QMainWindow):
                     app_logger.error("Ошибка по Unicode")
 
             try:
-                plc_name = get_plc_name(json_data)
+                plc_name = get_plc_name(json_data, self)
                 # todo: сделать проверку доступности 505-го порта, создать 505-й порт в конфигурации
             except NoPlcNameException:
                 plc_name = ""
@@ -351,19 +355,39 @@ def put_new_plc_module(config_dict: dict,
     pass
 
 
-def get_plc_name(config_dict: dict) -> str:
+def get_plc_name(config_dict: dict, parent_window) -> str:
     """
     Получение имени контроллера из файла конфигурации.
     :param config_dict: Словарь JSON-конфигурации
+    :param parent_window: Ссылка на родительское окно, используется, чтобы диалоговое появлялось по центру родительского
     :return: имя контроллера
     """
     plc_name = "no data"
-    if len(config_dict['ModulesIO'][0]['Name']) != 0:
-        plc_name = config_dict['ModulesIO'][0]['Name']
-        print(json.dumps(config_dict['ModulesIO'][0], indent=4, sort_keys=True, ensure_ascii=False))
-    else:
+    plc_qty = len(config_dict['ModulesIO'])
+
+    if plc_qty == 0:
         raise NoPlcNameException(plc_name)
-    return plc_name
+
+    if plc_qty == 1:
+        plc_name = config_dict['ModulesIO'][0]['Name']
+    else:
+        plc_names = [config_dict['ModulesIO'][i]['Name'] for i in range(plc_qty)]
+        dlg = PlcNameChooseWindow(plc_names, parent=parent_window, title="Уточните выбор ПЛК")
+
+        if dlg.exec() == QDialog.accepted:      # для PyQt6: dlg.exec()
+            value = dlg.get_selected()
+            # self.result_field.setText(value)
+
+
+
+    # if
+    #
+    # if len(config_dict['ModulesIO'][0]['Name']) != 0:
+    #     plc_name = config_dict['ModulesIO'][0]['Name']
+    #     print(json.dumps(config_dict['ModulesIO'][0], indent=4, sort_keys=True, ensure_ascii=False))
+    # else:
+    #     raise NoPlcNameException(plc_name)
+    # return plc_name
 
 
 # todo: при заполнении в новом конфиге формируются два JSON-списка:
