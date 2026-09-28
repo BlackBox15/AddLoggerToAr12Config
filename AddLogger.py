@@ -287,9 +287,13 @@ class MainWindow(QMainWindow):
                 #  таким образом, вызов диалога сохранения нового конфига будет выполняться только при условии отсутствии исключений,
                 #  т.е. в случае корректно-заполненного нового конфига
 
-                new_config_dict = filling_new_config(json_data, plc_name,
+                new_config_dict = filling_new_config(json_data,
+                                                     plc_name,
+                                                     self.ip_value,
+                                                     self.port_value,
+                                                     self.lines_value,
                                                      self.register_value,
-                                                     self._lines_value)
+                                                     self.messages_value)
 
                 target_path, _ = QFileDialog.getSaveFileName(self,
                                                              "Сохранить файл как...",
@@ -395,11 +399,15 @@ def get_plc_name(config_dict: dict, parent_window) -> str:
 #  Дополнительное проверочное условие: длина буфера >= количеству текстовых сообщений.
 def filling_new_config(config_dict: dict,
                        plc_name: str,
+                       ip_address: str,
+                       port: int,
                        lines_qty: int,
                        start_register: int = 40_000,
                        messages_qty=None) -> dict:
     """
     Заполнение словаря JSON-конфигурации согласно передаваемым параметрам.
+    :param ip_address:
+    :param port:
     :param messages_qty: Количество событий в ретроспективной очереди
     :param lines_qty: Количество добавляемых текстовых описаний регистрируемых событий
     :param start_register: начальный Modbus-регистр
@@ -415,6 +423,9 @@ def filling_new_config(config_dict: dict,
 
     if messages_qty is None:
         messages_qty = lines_qty
+
+    # todo: вызвать функцию, создающую новый модульИО (новый сконфигурированный модуль ПЛК)
+    config_dict['ModulesIO'].append(new_plc(plc_name, ip_address, port))
 
     for i in range(messages_qty):
         one_message_dict = {
@@ -460,6 +471,51 @@ def filling_new_config(config_dict: dict,
         app_logger.info("поле ExternalLoggingMessages не пустое")
 
     return config_dict
+
+
+def new_plc(plc_name: str, ip_address: str, port: int) -> str:
+    """
+    Создание нового модуля ПЛК для файла конфигурации
+    :param plc_name: имя ПЛК
+    :param ip_address: используемый IP-адрес
+    :param port: используемый порт
+    :return: JSON-конфигурация
+    """
+    new_configuration = f"""{
+    "Type": "TrekMark.Drivers.Boards.ModbusMaster.ModbusMaster",
+      "IsInitialized": true,
+      "Name": {plc_name},
+      "SignalActivationDelay": 0,
+      "SignalDeactivationDelay": 0,
+      "Parameters": [
+        {
+    "Name": "Адрес Modbus Client",
+          "Value": {ip_address},
+        },
+        {
+    "Name": "Сетевой порт Modbus Client",
+          "Value": {port}
+        },
+        {
+    "Name": "Время ожидания сообщений",
+          "Value": 4010
+        },
+        {
+    "Name": "Использование TCP Keepalive",
+          "Value": false
+        },
+        {
+    "Name": "Период опроса регистров",
+          "Value": 50
+        }
+      ],
+      "AddressesToRead": [],
+      "AddressesToWrite": [],
+      "IsUsing": true
+    },
+    """
+
+    return new_configuration
 
 
 if __name__ == "__main__":
