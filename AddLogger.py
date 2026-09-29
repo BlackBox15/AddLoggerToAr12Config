@@ -205,14 +205,14 @@ class MainWindow(QMainWindow):
     #     finally:
     #         self.ui.lblStatusText.setText(self.status_check())
 
-    def status_check(self) -> str:
-        for value in self.all_err:
-            if value != '':
-                self.setAcceptDrops(False)
-                return value
-        else:
-            self.setAcceptDrops(True)
-            return self.get_def_status
+    # def status_check(self) -> str:
+    #     for value in self.all_err:
+    #         if value != '':
+    #             self.setAcceptDrops(False)
+    #             return value
+    #     else:
+    #         self.setAcceptDrops(True)
+    #         return self.get_def_status
 
     def dragEnterEvent(self,
                        event):
@@ -425,6 +425,7 @@ def filling_new_config(config_dict: dict,
         messages_qty = lines_qty
 
     # todo: вызвать функцию, создающую новый модульИО (новый сконфигурированный модуль ПЛК)
+    new_plc_config = new_plc(plc_name, ip_address, port)
     config_dict['ModulesIO'].append(new_plc(plc_name, ip_address, port))
 
     for i in range(messages_qty):
@@ -473,7 +474,7 @@ def filling_new_config(config_dict: dict,
     return config_dict
 
 
-def new_plc(plc_name: str, ip_address: str, port: int) -> str:
+def new_plc(plc_name: str, ip_address: str, port: int) -> dict:
     """
     Создание нового модуля ПЛК для файла конфигурации
     :param plc_name: имя ПЛК
@@ -481,41 +482,77 @@ def new_plc(plc_name: str, ip_address: str, port: int) -> str:
     :param port: используемый порт
     :return: JSON-конфигурация
     """
-    new_configuration = f"""{
-    "Type": "TrekMark.Drivers.Boards.ModbusMaster.ModbusMaster",
-      "IsInitialized": true,
-      "Name": {plc_name},
-      "SignalActivationDelay": 0,
-      "SignalDeactivationDelay": 0,
-      "Parameters": [
-        {
-    "Name": "Адрес Modbus Client",
-          "Value": {ip_address},
-        },
-        {
-    "Name": "Сетевой порт Modbus Client",
-          "Value": {port}
-        },
-        {
-    "Name": "Время ожидания сообщений",
-          "Value": 4010
-        },
-        {
-    "Name": "Использование TCP Keepalive",
-          "Value": false
-        },
-        {
-    "Name": "Период опроса регистров",
-          "Value": 50
-        }
-      ],
-      "AddressesToRead": [],
-      "AddressesToWrite": [],
-      "IsUsing": true
-    },
-    """
 
-    return new_configuration
+    new_another_configuration = {
+        "Type": "TrekMark.Drivers.Boards.ModbusMaster.ModbusMaster",
+        "IsInitialized": True,
+        "Name": "{plc_name}",
+        "SignalActivationDelay": 0,
+        "SignalDeactivationDelay": 0,
+        "Parameters": [
+            {
+                "Name": "Адрес Modbus Client",
+                "Value": "{ip_address}",
+            },
+            {
+                "Name": "Сетевой порт Modbus Client",
+                "Value": {port}
+            },
+            {
+                "Name": "Время ожидания сообщений",
+                "Value": 4010
+            },
+            {
+                "Name": "Использование TCP Keepalive",
+                "Value": False
+            },
+            {
+                "Name": "Период опроса регистров",
+                "Value": 50
+            }
+        ],
+        "AddressesToRead": [],
+        "AddressesToWrite": [],
+        "IsUsing": True
+    }
+
+    new_configuration = fr"""
+    {{
+        "Type": "TrekMark.Drivers.Boards.ModbusMaster.ModbusMaster",
+        "IsInitialized": true,
+        "Name": "{plc_name}",
+        "SignalActivationDelay": 0,
+        "SignalDeactivationDelay": 0,
+        "Parameters": [
+            {{
+            "Name": "Адрес Modbus Client",
+              "Value": "{ip_address}",
+            }},
+            {{
+            "Name": "Сетевой порт Modbus Client",
+              "Value": {port}
+            }},
+            {{
+            "Name": "Время ожидания сообщений",
+              "Value": 4010
+            }},
+            {{
+            "Name": "Использование TCP Keepalive",
+              "Value": false
+            }},
+            {{
+            "Name": "Период опроса регистров",
+              "Value": 50
+            }}
+        ],
+        "AddressesToRead": [],
+        "AddressesToWrite": [],
+        "IsUsing": true
+    }}
+    """
+    print(new_another_configuration)
+    print(repr(new_configuration))
+    return new_another_configuration
 
 
 if __name__ == "__main__":
@@ -525,5 +562,6 @@ if __name__ == "__main__":
     # app_logger.info(f"Текущий стиль приложения - {app.style().name()}")
     window = MainWindow()
     window.show()
+    print()
 
     sys.exit(app.exec())
