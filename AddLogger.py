@@ -188,7 +188,7 @@ class MainWindow(QMainWindow):
     def dragEnterEvent(self,
                        event):
         """
-        Функция вызывается при "заносе" внутрь границ окна объекта
+        Функция вызывается при занесении объекта в границы окна приложения, до дропа.
         :param event:
         """
         mimetype = event.mimeData().hasText()
