@@ -185,35 +185,6 @@ class MainWindow(QMainWindow):
             self.lines_value = self.messages_value
             self.ui.spinMessages.setValue(self.lines_value)
 
-    # def ip_check(self):
-    #     """
-    #     Проверка корректности информации на соответствие формату IP-адреса
-    #     """
-    #     new_ip_address = self.ui.linePlcIpAddress.text().strip()
-    #
-    #     try:
-    #         ip = ip_address(new_ip_address)
-    #         if not isinstance(ip, IPv4Address):
-    #             raise ValueError
-    #         else:
-    #             self.ip_value = new_ip_address
-    #             self.ip_error = ''
-    #             app_logger.info("IP адрес обновлён: " + new_ip_address)
-    #     except ValueError:
-    #         self.ip_error = "Некорректный IP адрес"
-    #         app_logger.error("Некорректный IP адрес")
-    #     finally:
-    #         self.ui.lblStatusText.setText(self.status_check())
-
-    # def status_check(self) -> str:
-    #     for value in self.all_err:
-    #         if value != '':
-    #             self.setAcceptDrops(False)
-    #             return value
-    #     else:
-    #         self.setAcceptDrops(True)
-    #         return self.get_def_status
-
     def dragEnterEvent(self,
                        event):
         """
