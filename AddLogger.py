@@ -189,7 +189,6 @@ class MainWindow(QMainWindow):
                        event):
         """
         Функция вызывается при занесении объекта в границы окна приложения, до дропа.
-        :param event:
         """
         mimetype = event.mimeData().hasText()
         mimeData = event.mimeData()
@@ -206,13 +205,9 @@ class MainWindow(QMainWindow):
         if mimetype:
             event.acceptProposedAction()
 
-    def dropEvent(self,
-                  event):
-        """
-        Функция вызывается при "сбросе" объекта внутри границ окна
-        :param event:
-        """
+    def dropEvent(self, event):
         json_data: dict
+        json_correct_flag: bool = False;
         urls = event.mimeData().urls()  # Получаем список URL перетаскиваемых объектов
 
         if (len(urls) == 1
@@ -221,11 +216,11 @@ class MainWindow(QMainWindow):
 
             dropped_file_path = urls[0].toLocalFile()
 
-            # Открытие файла,
-            # utf-8-sig -- игнорирует наличие возможной области BOM в JSON-файле
-            # (размещение BOM запрещено стандартом RFC)
+            # utf-8-sig -- игнорирует наличие области BOM
+            # (размещение BOM запрещено стандартом RFC) в JSON-файле
             with open(dropped_file_path, 'r', encoding='utf-8-sig') as opened_file:
                 try:
+                    json_correct_flag = True
                     json_data = json.load(opened_file)
                 except JSONDecodeError:
                     self.ui.lblStatusText.setText(
@@ -235,295 +230,65 @@ class MainWindow(QMainWindow):
                     self.ui.lblStatusText.setText(self.ui.lblStatusText.text() + ' ' + "Ошибка по Unicode")
                     app_logger.error("Ошибка по Unicode")
 
-            try:
-                plc_name = get_plc_name(json_data, self)
-                # todo: сделать проверку доступности 505-го порта, создать 505-й порт в конфигурации
-            except NoPlcNameException as e:
-                plc_name = e.args[0]
-                self.ui.lblStatusText.setText(
-                    self.ui.lblStatusText.text() + ' ' + "В файле конфигурации не обозначено имя ПЛК")
-                app_logger.info("В файле конфигурации не обозначено имя ПЛК")
+            if json_correct_flag:
+                # json открыт, можно его обрабатывать
+                # 1. взять из конфига имя ПЛК
 
-            if plc_name != "":
-                self.register_value = self.ui.spinRegister.value()
-                self.messages_value = self.ui.spinBuffer.value()
-                self.lines_value = self.ui.spinMessages.value()
 
-                app_logger.info("Событие дроп, новых сообщений: %d " % self.lines_value)
-                app_logger.info("Событие дроп, стартовый регистр: %d " % self.register_value)
 
-                # todo: перед вызовом диалога сохранения нового конфига нужно быть уверенным,
-                #  что заполнение выполнено корректно
-                #  как вариант, в случае ошибок при заполнении конфига можно выбрасывать специальные исключения,
-                #  таким образом, вызов диалога сохранения нового конфига будет выполняться только при условии отсутствии исключений,
-                #  т.е. в случае корректно-заполненного нового конфига
+                try:
+                    plc_name = get_plc_name(json_data, self)
+                    # todo: сделать проверку доступности 505-го порта, создать 505-й порт в конфигурации
+                except NoPlcNameException as e:
+                    plc_name = e.args[0]
+                    self.ui.lblStatusText.setText(
+                        self.ui.lblStatusText.text() + ' ' + "В файле конфигурации не обозначено имя ПЛК")
+                    app_logger.info("В файле конфигурации не обозначено имя ПЛК")
 
-                new_config_dict = filling_new_config(json_data,
-                                                     plc_name,
-                                                     self.ip_value,
-                                                     self.port_value,
-                                                     self.lines_value,
-                                                     self.register_value,
-                                                     self.messages_value)
+                if plc_name != "":
+                    self.register_value = self.ui.spinRegister.value()
+                    self.messages_value = self.ui.spinBuffer.value()
+                    self.lines_value = self.ui.spinMessages.value()
 
-                target_path, _ = QFileDialog.getSaveFileName(self,
-                                                             "Сохранить файл как...",
-                                                             dropped_file_path,  # начальная директория (можно указать)
-                                                             "Все файлы (*.*)",  # фильтр
-                                                             # options=options
-                                                             )
+                    app_logger.info("Событие дроп, новых сообщений: %d " % self.lines_value)
+                    app_logger.info("Событие дроп, стартовый регистр: %d " % self.register_value)
 
-                if target_path:
-                    try:
-                        with open(target_path, 'w', encoding='utf-8-sig') as wrote_file:
-                            json.dump(new_config_dict, wrote_file, indent=2, ensure_ascii=False)
-                            self.ui.lblStatusText.setText("Конфиг обновлён")
-                            # QMessageBox.information(self, "Заголовок", "Конфиг обновлён")
-                        QMessageBox.information(self, "Готово", f"Результат сохранён в:\n{target_path}")
-                    except Exception as e:
-                        QMessageBox.critical(self, "Ошибка записи", f"Не удалось сохранить:\n{str(e)}")
+                    # todo: перед вызовом диалога сохранения нового конфига нужно быть уверенным,
+                    #  что заполнение выполнено корректно
+                    #  как вариант, в случае ошибок при заполнении конфига можно выбрасывать специальные исключения,
+                    #  таким образом, вызов диалога сохранения нового конфига будет выполняться только при условии отсутствии исключений,
+                    #  т.е. в случае корректно-заполненного нового конфига
+
+                    new_config_dict = filling_new_config(json_data,
+                                                         plc_name,
+                                                         self.ip_value,
+                                                         self.port_value,
+                                                         self.lines_value,
+                                                         self.register_value,
+                                                         self.messages_value)
+
+                    target_path, _ = QFileDialog.getSaveFileName(self,
+                                                                 "Сохранить файл как...",
+                                                                 dropped_file_path,
+                                                                 # начальная директория (можно указать)
+                                                                 "Все файлы (*.*)",  # фильтр
+                                                                 # options=options
+                                                                 )
+
+                    if target_path:
+                        try:
+                            with open(target_path, 'w', encoding='utf-8-sig') as wrote_file:
+                                json.dump(new_config_dict, wrote_file, indent=2, ensure_ascii=False)
+                                self.ui.lblStatusText.setText("Конфиг обновлён")
+                                # QMessageBox.information(self, "Заголовок", "Конфиг обновлён")
+                            QMessageBox.information(self, "Готово", f"Результат сохранён в:\n{target_path}")
+                        except Exception as e:
+                            QMessageBox.critical(self, "Ошибка записи", f"Не удалось сохранить:\n{str(e)}")
+
         else:
             QMessageBox.information(self, "Предупреждение", f"Неподходящий тип файла!")
 
         event.acceptProposedAction()
-
-
-def put_new_plc_module(config_dict: dict,
-                       port: int) -> dict:
-    """
-    Добавление нового модуля ПЛК в JSON-конфигурацию
-    :param config_dict: Словарь с JSON-конфигурацей
-    :param port: Используемый порт для нового модуля ПЛК
-    :return: Обновлённый словарь с JSON-конфигурацией
-    """
-    plc_name = "Logger_plc_module"
-    new_plc_module_configuration = """
-    {
-      "Type": "TrekMark.Drivers.Boards.ModbusMaster.ModbusMaster",
-      "IsInitialized": true,
-      "Name": "Logger_plc",
-      "SignalActivationDelay": 0,
-      "SignalDeactivationDelay": 0,
-      "Parameters": [
-        {
-          "Name": "Адрес Modbus Client",
-          "Value": "192.168.0.12"
-        },
-        {
-          "Name": "Сетевой порт Modbus Client",
-          "Value": 505
-        },
-        {
-          "Name": "Время ожидания сообщений",
-          "Value": 0
-        },
-        {
-          "Name": "Использование TCP Keepalive",
-          "Value": false
-        },
-        {
-          "Name": "Период опроса регистров",
-          "Value": 100
-        }
-      ],
-      "AddressesToRead": [],
-      "AddressesToWrite": [],
-      "IsUsing": true
-    }
-    """
-    pass
-
-
-def get_plc_name(config_dict: dict, parent_window) -> str:
-    """
-    Получение имени контроллера из файла конфигурации.
-    :param config_dict: Словарь JSON-конфигурации
-    :param parent_window: Ссылка на родительское окно, используется, чтобы диалоговое появлялось по центру родительского
-    :return: имя контроллера
-    """
-    new_plc_name = "no data"
-    plc_modules_qty = len(config_dict['ModulesIO'])
-
-    if plc_modules_qty == 0:
-        raise NoPlcNameException(new_plc_name)
-
-    if plc_modules_qty == 1:
-        if len(config_dict['ModulesIO'][0]['Name']) != 0:
-            new_plc_name = config_dict['ModulesIO'][0]['Name'] or "no data"
-        else:
-            raise NoPlcNameException(new_plc_name)
-    else:
-        plc_names = [config_dict['ModulesIO'][i]['Name'] for i in range(plc_modules_qty)]
-        dlg = PlcNameChooseWindow(plc_names, parent=parent_window, title="Уточните выбор ПЛК")
-
-        if dlg.exec() == QDialog.DialogCode.Accepted:  # для PyQt6: dlg.exec()
-            new_plc_name = dlg.get_selected()
-
-    return new_plc_name
-
-
-# todo: при заполнении в новом конфиге формируются два JSON-списка:
-#  1. список регистров ретроспективного буфера
-#  2. и список текстовых возможных текстовых сообщений..
-#  Размеры списков, в общем случае, разные.
-#  Таким образом в функцию необходимо передавать оба размера как отдельные параметры.
-#  Дополнительное проверочное условие: длина буфера >= количеству текстовых сообщений.
-def filling_new_config(config_dict: dict,
-                       plc_name: str,
-                       ip_address: str,
-                       port: int,
-                       lines_qty: int,
-                       start_register: int = 40_000,
-                       messages_qty=None) -> dict:
-    """
-    Заполнение словаря JSON-конфигурации согласно передаваемым параметрам.
-    :param ip_address:
-    :param port:
-    :param messages_qty: Количество событий в ретроспективной очереди
-    :param lines_qty: Количество добавляемых текстовых описаний регистрируемых событий
-    :param start_register: начальный Modbus-регистр
-    :param config_dict: старый словарь конфигурации
-    :param plc_name: имя контроллера
-    :return: новый словарь конфигурации
-    """
-    app_logger.info("Заполнение обновлённого конфига, новых сообщений: %d " % lines_qty)
-    app_logger.info("Заполнение обновлённого конфига, стартовый регистр: %d " % start_register)
-
-    lines_list = list()
-    messages_list = list()
-
-    if messages_qty is None:
-        messages_qty = lines_qty
-
-    # todo: вызвать функцию, создающую новый модульИО (новый сконфигурированный модуль ПЛК)
-    new_plc_config = new_plc(plc_name, ip_address, port)
-    config_dict['ModulesIO'].append(new_plc(plc_name, ip_address, port))
-
-    for i in range(messages_qty):
-        one_message_dict = {
-            "Name": "message" + str(i + 1),
-            "IsEnabled": True,
-            "EventIndex": (i + 1),
-            "LoggerName": "Logger1",
-            "MessageText": "Message" + str(i + 1),
-            "ArgEnabled": "false"
-        }
-        messages_list.append(one_message_dict)
-
-    for i in range(lines_qty):
-        one_line_dict = {
-            "TimeRelayNumber": start_register + (i * 4) + 2,
-            "EventRelayNumber": (start_register - 30_000) + (i * 4) + 4,
-            "ArgRelayNuber": (start_register - 30_000) + (i * 4) + 5
-        }
-        lines_list.append(one_line_dict)
-
-    if len(config_dict['ExternalLoggers']) == 0:
-        config_dict['ExternalLoggers'] = [
-            {
-                "Name": "Logger1",
-                "IsInitialized": False,
-                "IsUsing": False,
-                "ModuleIOName": plc_name,
-                "FutureEntryRelayNumber": start_register,
-                "ExternalLoggerLines": []
-            }
-        ]
-        config_dict['ExternalLoggers'][0]['ExternalLoggerLines'] = lines_list
-        config_dict['ExternalLoggers'][0]['ExternalLoggingMessages'] = messages_list
-        app_logger.info("New ExternalLoggers added.")
-    else:
-        QMessageBox.critical("Ошибка", "Поле ExternalLoggers - не пустое")
-        app_logger.info("Поле ExternalLoggers - не пустое")
-
-    if len(config_dict['ExternalLoggingMessages']) == 0:
-        config_dict['ExternalLoggingMessages'] = messages_list
-        app_logger.info("New ExternalLoggingMessages added.")
-    else:
-        app_logger.info("поле ExternalLoggingMessages не пустое")
-
-    return config_dict
-
-
-def new_plc(plc_name: str, ip_address: str, port: int) -> dict:
-    """
-    Создание нового модуля ПЛК для файла конфигурации
-    :param plc_name: имя ПЛК
-    :param ip_address: используемый IP-адрес
-    :param port: используемый порт
-    :return: JSON-конфигурация
-    """
-
-    new_another_configuration = {
-        "Type": "TrekMark.Drivers.Boards.ModbusMaster.ModbusMaster",
-        "IsInitialized": True,
-        "Name": "{plc_name}",
-        "SignalActivationDelay": 0,
-        "SignalDeactivationDelay": 0,
-        "Parameters": [
-            {
-                "Name": "Адрес Modbus Client",
-                "Value": "{ip_address}",
-            },
-            {
-                "Name": "Сетевой порт Modbus Client",
-                "Value": {port}
-            },
-            {
-                "Name": "Время ожидания сообщений",
-                "Value": 4010
-            },
-            {
-                "Name": "Использование TCP Keepalive",
-                "Value": False
-            },
-            {
-                "Name": "Период опроса регистров",
-                "Value": 50
-            }
-        ],
-        "AddressesToRead": [],
-        "AddressesToWrite": [],
-        "IsUsing": True
-    }
-
-    new_configuration = fr"""
-    {{
-        "Type": "TrekMark.Drivers.Boards.ModbusMaster.ModbusMaster",
-        "IsInitialized": true,
-        "Name": "{plc_name}",
-        "SignalActivationDelay": 0,
-        "SignalDeactivationDelay": 0,
-        "Parameters": [
-            {{
-            "Name": "Адрес Modbus Client",
-              "Value": "{ip_address}",
-            }},
-            {{
-            "Name": "Сетевой порт Modbus Client",
-              "Value": {port}
-            }},
-            {{
-            "Name": "Время ожидания сообщений",
-              "Value": 4010
-            }},
-            {{
-            "Name": "Использование TCP Keepalive",
-              "Value": false
-            }},
-            {{
-            "Name": "Период опроса регистров",
-              "Value": 50
-            }}
-        ],
-        "AddressesToRead": [],
-        "AddressesToWrite": [],
-        "IsUsing": true
-    }}
-    """
-    print(new_another_configuration)
-    print(repr(new_configuration))
-    return new_another_configuration
 
 
 if __name__ == "__main__":
